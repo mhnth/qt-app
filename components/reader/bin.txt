@@ -1,0 +1,73 @@
+{translatedArr &&
+            (() => {
+              const elements = [];
+              let tempArr: any[] = [];
+              let capitalizeNext = false;
+
+              const punctuationRegex = /[.:“!]/;
+
+              translatedArr.forEach((c, i) => {
+                if (c === '\n') {
+                  if (tempArr.length > 0) {
+                    elements.push(
+                      <p className="" key={`p-${i}`}>
+                        {tempArr}
+                      </p>,
+                    );
+                    tempArr = [];
+                    capitalizeNext = true;
+                  }
+                } else if (c === ',') {
+                  tempArr.push(
+                    <React.Fragment key={`frag-${i}`}>,</React.Fragment>,
+                  );
+                } else if (c === '“') {
+                  tempArr.push(
+                    <React.Fragment key={`frag-${i}`}>&nbsp;“</React.Fragment>,
+                  );
+                  capitalizeNext = true;
+                } else if (punctuationRegex.test(c)) {
+                  tempArr.push(
+                    <React.Fragment key={`frag-${i}`}>{c}</React.Fragment>,
+                  );
+                  capitalizeNext = true;
+                } else {
+                  if (capitalizeNext || i === 0) {
+                    c = c.charAt(0).toUpperCase() + c.slice(1);
+                    capitalizeNext = false;
+                  }
+
+                  if (translatedArr[i - 1] === '\n' || i === 0) {
+                    tempArr.push(
+                      <React.Fragment key={`frag-${i}`}>
+                        <i
+                          title={chineseMapping[i]}
+                          className="not-italic tracking-tight"
+                        >
+                          {c}
+                        </i>
+                      </React.Fragment>,
+                    );
+                  } else {
+                    tempArr.push(
+                      <React.Fragment key={`frag-${i}`}>
+                        &nbsp;
+                        <i
+                          title={chineseMapping[i]}
+                          className="not-italic tracking-tight"
+                        >
+                          {c}
+                        </i>
+                      </React.Fragment>,
+                    );
+                  }
+                }
+              });
+
+              // Đẩy đoạn cuối cùng nếu có
+              if (tempArr.length > 0) {
+                elements.push(<p key="last-p">{tempArr}</p>);
+              }
+
+              return elements;
+            })()}
