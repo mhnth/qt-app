@@ -44,7 +44,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
     }
   }
 
-  const handleSubmit = async (e: FormEvent, fileName: string) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!chineseWord || !vietnameseWord || vietnameseWord === viWord) {
       alert('Không hợp lệ, vui lòng xem hướng dẫn');
@@ -148,7 +148,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
                   {otherWordMeaning.map((w, i) => {
                     const meanArr = w.mean.split('/');
                     return (
-                      <div className="inline">
+                      <div className="inline" key={i}>
                         <span className="m-[1px] inline-block bg-amber-600 p-[2px]">
                           {meanArr[0]}
                         </span>
@@ -169,7 +169,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
                   type="submit"
                   className="ml-auto bg-sky-700 p-2 text-white"
                   onClick={(e) => {
-                    handleSubmit(e, 'Names2');
+                    handleSubmit(e);
                   }}
                 >
                   Xác nhận
