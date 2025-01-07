@@ -44,7 +44,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
     }
   }
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent, fileName: string) => {
     e.preventDefault();
     if (!chineseWord || !vietnameseWord || vietnameseWord === viWord) {
       alert('Không hợp lệ, vui lòng xem hướng dẫn');
@@ -169,7 +169,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
                   type="submit"
                   className="ml-auto bg-sky-700 p-2 text-white"
                   onClick={(e) => {
-                    handleSubmit(e);
+                    handleSubmit(e, 'Names2');
                   }}
                 >
                   Xác nhận
