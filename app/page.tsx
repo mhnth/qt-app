@@ -43,7 +43,7 @@ export default function TranslatePage() {
     const reader = new FileReader();
     reader.onload = () => {
       const content = reader.result as string;
-      setInputTxt(content);
+      setInputTxt(content.replaceAll(/[\n\r]+/g, '\n\n'));
     };
 
     const fileName = file.name.replace('.txt', '');
@@ -134,10 +134,7 @@ export default function TranslatePage() {
             </div>
           </div>
           <div className="no-scrollbar h-[600px] mt-4 space-y-8 overflow-y-scroll text-justify">
-            <Reader
-              ref={readerRef}
-              rawText={inputTxt.replace(/[\n\r]+/g, '\n')}
-            />
+            <Reader ref={readerRef} rawText={inputTxt} />
           </div>
         </div>
       </div>
