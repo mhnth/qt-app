@@ -11,6 +11,7 @@ import { capitalizeFirstLetter, cx, splitArray } from '@/lib/utils';
 
 import { EditQTModal } from './editQT-modal';
 import { useQT } from '@/qt/QTContext';
+import { Spinner } from '../spinner';
 
 interface ReaderProps extends HTMLAttributes<HTMLDivElement> {
   rawText: string;
@@ -64,8 +65,9 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center fixed inset-0 backdrop-sepia-0 bg-white/30">
+      <div className="flex justify-center gap-2 items-center fixed inset-0 backdrop-sepia-1 bg-black/40">
         {/* <Skeleton message="Loading QT Dictionary, please wait" /> */}
+        <Spinner />
         Loading Dictionary...
       </div>
     );
