@@ -134,7 +134,10 @@ export default function TranslatePage() {
             </div>
           </div>
           <div className="no-scrollbar h-[600px] mt-4 space-y-8 overflow-y-scroll text-justify">
-            <Reader ref={readerRef} rawText={inputTxt} />
+            <Reader
+              ref={readerRef}
+              rawText={inputTxt.replace(/[\n\r]+/g, '\n')}
+            />
           </div>
         </div>
       </div>

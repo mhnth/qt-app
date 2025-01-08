@@ -142,11 +142,12 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
         className="mx-auto max-w-4xl px-2 pb-28 md:px-6"
       >
         <div
-          className="mx-auto max-w-4xl space-y-7 px-2
+          className="mx-auto max-w-4xl px-2 space-y-6
           text-justify font-normal leading-10 md:px-16"
         >
           {viParagraphs.map((p, parIndex) => {
             return (
+              // <div key={parIndex}>
               <p key={parIndex}>
                 {p.map((wordRaw, wrdIndex) => {
                   const isHighlight =
@@ -216,6 +217,8 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                   );
                 })}
               </p>
+              // <br />
+              // </div>
             );
           })}
         </div>
