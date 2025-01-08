@@ -47,7 +47,7 @@ export default function TranslatePage() {
     };
 
     const fileName = file.name.replace('.txt', '');
-    const title = translateQT(fileName, false) + `(${fileName})`;
+    const title = `${fileName}` + '-' + translateQT(fileName, false) + '.txt';
 
     setOutputFileName(title || 'qt.output.file');
 
