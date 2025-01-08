@@ -80,7 +80,7 @@ export default function TranslatePage() {
   return (
     <div className="mx-auto max-w-5xl p-2 text-white min-h-screen">
       <div
-        className="mt-2 h-[95%] w-full rounded-md flex flex-col bg-neutral-800
+        className="mt-2 min-h-[95%] w-full rounded-md flex flex-col bg-neutral-800
         border p-6 bg-opacity-60 shadow-md border-neutral-600"
       >
         <div className="h-max">
