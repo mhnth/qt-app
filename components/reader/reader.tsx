@@ -142,35 +142,65 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
         className="mx-auto max-w-4xl px-2 pb-28 md:px-6"
       >
         <div
-          className="mx-auto max-w-4xl px-2 space-y-6
+          className="mx-auto max-w-4xl px-2
           text-justify font-normal leading-10 md:px-16"
         >
           {viParagraphs.map((p, parIndex) => {
             return (
-              // <div key={parIndex}>
-              <p key={parIndex}>
-                {p.map((wordRaw, wrdIndex) => {
-                  const isHighlight =
-                    currentParPosition === parIndex &&
-                    selectedWordsPosition.includes(wrdIndex);
+              <div key={parIndex} className="contents">
+                <p key={parIndex}>
+                  {p.map((wordRaw, wrdIndex) => {
+                    const isHighlight =
+                      currentParPosition === parIndex &&
+                      selectedWordsPosition.includes(wrdIndex);
 
-                  const word = wordRaw.split('/')[0];
+                    const word = wordRaw.split('/')[0];
 
-                  if (wrdIndex === 0) {
-                    return (
-                      <span
-                        onClick={(e) => selectWord(e, parIndex, wrdIndex)}
-                        className={cx(
-                          isHighlight && 'bg-orange-500 text-black'
-                        )}
-                        key={wrdIndex}
-                      >
-                        {capitalizeFirstLetter(word)}
-                      </span>
-                    );
-                  }
-                  if (/^[,”.:;?!]+$/.test(word)) return word;
-                  if (/^[.?]+$/.test(p[wrdIndex - 1])) {
+                    if (wrdIndex === 0) {
+                      return (
+                        <span
+                          onClick={(e) => selectWord(e, parIndex, wrdIndex)}
+                          className={cx(
+                            isHighlight && 'bg-orange-500 text-black'
+                          )}
+                          key={wrdIndex}
+                        >
+                          {capitalizeFirstLetter(word)}
+                        </span>
+                      );
+                    }
+                    if (/^[,”.:;?!]+$/.test(word)) return word;
+                    if (/^[.?]+$/.test(p[wrdIndex - 1])) {
+                      return (
+                        <span
+                          onClick={(e) => {
+                            selectWord(e, parIndex, wrdIndex);
+                          }}
+                          key={wrdIndex}
+                          className={cx(
+                            // 'spank',
+                            isHighlight && 'bg-orange-500 text-black'
+                          )}
+                        >
+                          {' ' + capitalizeFirstLetter(word)}
+                        </span>
+                      );
+                    }
+                    if (p[wrdIndex - 1] === '“')
+                      return (
+                        <span
+                          onClick={(e) => {
+                            selectWord(e, parIndex, wrdIndex);
+                          }}
+                          className={cx(
+                            isHighlight && 'bg-orange-500 text-black'
+                          )}
+                          key={wrdIndex}
+                        >
+                          {capitalizeFirstLetter(word)}
+                        </span>
+                      );
+
                     return (
                       <span
                         onClick={(e) => {
@@ -182,43 +212,13 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                           isHighlight && 'bg-orange-500 text-black'
                         )}
                       >
-                        {' ' + capitalizeFirstLetter(word)}
+                        {' ' + word}
                       </span>
                     );
-                  }
-                  if (p[wrdIndex - 1] === '“')
-                    return (
-                      <span
-                        onClick={(e) => {
-                          selectWord(e, parIndex, wrdIndex);
-                        }}
-                        className={cx(
-                          isHighlight && 'bg-orange-500 text-black'
-                        )}
-                        key={wrdIndex}
-                      >
-                        {capitalizeFirstLetter(word)}
-                      </span>
-                    );
-
-                  return (
-                    <span
-                      onClick={(e) => {
-                        selectWord(e, parIndex, wrdIndex);
-                      }}
-                      key={wrdIndex}
-                      className={cx(
-                        // 'spank',
-                        isHighlight && 'bg-orange-500 text-black'
-                      )}
-                    >
-                      {' ' + word}
-                    </span>
-                  );
-                })}
-              </p>
-              // <br />
-              // </div>
+                  })}
+                </p>
+                <br />
+              </div>
             );
           })}
         </div>

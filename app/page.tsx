@@ -43,7 +43,7 @@ export default function TranslatePage() {
     const reader = new FileReader();
     reader.onload = () => {
       const content = reader.result as string;
-      setInputTxt(content.replaceAll(/[\n\r]+/g, '\n\n'));
+      setInputTxt(content.replaceAll(/[\n\r]+/g, '\n'));
     };
 
     const fileName = file.name.replace('.txt', '');
