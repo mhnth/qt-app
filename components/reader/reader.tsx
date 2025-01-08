@@ -64,7 +64,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center mt-20">
+      <div className="flex justify-center items-center fixed inset-0 backdrop-sepia-0 bg-white/30">
         {/* <Skeleton message="Loading QT Dictionary, please wait" /> */}
         Loading Dictionary...
       </div>

@@ -78,10 +78,10 @@ export default function TranslatePage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl p-2">
+    <div className="mx-auto max-w-5xl p-2 text-white min-h-screen">
       <div
-        className="mt-2 h-[95%] w-full rounded-md flex flex-col
-        border bg-white p-6 dark:border-neutral-800 dark:bg-transparent"
+        className="mt-2 h-[95%] w-full rounded-md flex flex-col bg-neutral-800
+        border p-6 bg-opacity-60 shadow-md border-neutral-600"
       >
         <div className="h-max">
           <div className="flex justify-between">
@@ -107,18 +107,18 @@ export default function TranslatePage() {
           </div>
 
           <textarea
-            className="mt-2 h-[50px] w-full rounded-sm border border-stone-200 bg-stone-50 
-            p-2 outline-none dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-2 h-[50px] w-full rounded-sm border border-stone-200
+            p-2 outline-none dark:border-neutral-700 bg-neutral-900 bg-opacity-50"
             value={inputTxt}
             onChange={(e) => {
               setInputTxt(e.target.value);
             }}
           />
 
-          <div>
+          {/* <div>
             Settings
             <div></div>
-          </div>
+          </div> */}
         </div>
 
         <div className="mt-3 rounded-md border border-neutral-300 px-4 dark:border-neutral-600">
