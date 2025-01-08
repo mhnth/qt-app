@@ -80,7 +80,7 @@ export default function TranslatePage() {
   return (
     <div className="mx-auto max-w-5xl p-2 text-white min-h-screen">
       <div
-        className="mt-2 min-h-[95%] w-full rounded-md flex flex-col bg-neutral-800
+        className="mt-2 min-h-[100vh] w-full rounded-md flex flex-col bg-neutral-800
         border p-6 bg-opacity-60 shadow-md border-neutral-600"
       >
         <div className="h-max">
@@ -121,20 +121,22 @@ export default function TranslatePage() {
           </div> */}
         </div>
 
-        <div className="mt-3 rounded-md border border-neutral-300 px-4 dark:border-neutral-600">
-          <div className="flex items-center justify-between border-b py-1 dark:border-neutral-600">
-            <label htmlFor="">Kết quả dịch</label>
-            <div className="flex gap-8">
-              <button onClick={() => handleCopy('out')}>
-                <ICopy className="w-4 fill-neutral-500 dark:fill-neutral-300" />
-              </button>
-              <button onClick={handleDownload}>
-                <IDownload className="w-5 fill-neutral-500 dark:fill-neutral-300" />
-              </button>
+        <div className="mt-3 rounded-md border px-4 border-neutral-600">
+          <div className="md:h-max h-screen">
+            <div className="flex justify-between items-center border-neutral-600 border-b">
+              <label htmlFor="">Kết quả dịch</label>
+              <div className="flex gap-8">
+                <button onClick={() => handleCopy('out')}>
+                  <ICopy className="w-4 fill-neutral-500 dark:fill-neutral-300" />
+                </button>
+                <button onClick={handleDownload}>
+                  <IDownload className="w-5 fill-neutral-500 dark:fill-neutral-300" />
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="no-scrollbar h-[600px] mt-4 space-y-8 overflow-y-scroll text-justify">
-            <Reader ref={readerRef} rawText={inputTxt} />
+            <div className="md:h-[600px] mt-4 space-y-8 h-[calc(100vh-37)] overflow-y-scroll w-full text-justify">
+              <Reader ref={readerRef} rawText={inputTxt} />
+            </div>
           </div>
         </div>
       </div>

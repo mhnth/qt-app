@@ -141,7 +141,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
       <article
         ref={ref}
         {...props}
-        className="mx-auto max-w-4xl px-2 pb-28 md:px-6"
+        className="mx-auto max-w-4xl h-full px-2 pb-28 md:px-6"
       >
         <div
           className="mx-auto max-w-4xl px-2
