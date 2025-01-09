@@ -119,8 +119,12 @@ export default function TranslatePage() {
             <label htmlFor="">Văn bản tiếng Trung</label>
 
             <div className="flex items-center gap-8 px-4">
-              <label htmlFor="file-upload" className="cursor-pointer">
-                <IUpload className="w-5 fill-neutral-500 dark:fill-neutral-300" />
+              <label
+                title="upload txt tiếng Trung"
+                htmlFor="file-upload"
+                className="cursor-pointer"
+              >
+                <IUpload className="w-5 fill-neutral-300" />
               </label>
               <input
                 id="file-upload"
@@ -129,11 +133,11 @@ export default function TranslatePage() {
                 className="hidden"
                 onChange={handleUpload}
               />
-              <button onClick={() => handleDel('in')}>
-                <IDelete className="w-5 fill-neutral-500 dark:fill-neutral-300" />
+              <button title="xóa input" onClick={() => handleDel('in')}>
+                <IDelete className="w-5 fill-neutral-300" />
               </button>
-              <button onClick={() => handleCopy('in')}>
-                <ICopy className="w-4 fill-neutral-500 dark:fill-neutral-300" />
+              <button title="copy input" onClick={() => handleCopy('in')}>
+                <ICopy className="w-4 fill-neutral-300" />
               </button>
             </div>
           </div>
@@ -163,10 +167,16 @@ export default function TranslatePage() {
                 </span>
               </label>
               <div className="flex gap-8">
-                <button onClick={() => handleCopy('out')}>
+                <button
+                  title="copy văn bản kết quả dịch"
+                  onClick={() => handleCopy('out')}
+                >
                   <ICopy className="w-4 fill-neutral-300" />
                 </button>
-                <button onClick={handleDownload}>
+                <button
+                  title="tải về txt kết quả dịch"
+                  onClick={handleDownload}
+                >
                   <IDownload className="w-5 fill-neutral-300" />
                 </button>
               </div>

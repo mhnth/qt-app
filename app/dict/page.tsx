@@ -113,13 +113,13 @@ export default function DictPage() {
                   onChange={(e) => setInputZh(e.target.value)}
                   type="text"
                   placeholder="Tiếng trung"
-                  className="bg-neutral-900 bg-opacity-50 p-1 px-4 rounded-md"
+                  className="bg-neutral-900 bg-opacity-50 p-1 px-4 rounded-md outline-none"
                 />
                 <input
                   onChange={(e) => setInputVi(e.target.value)}
                   type="text"
                   placeholder="Nghĩa"
-                  className="bg-neutral-900 bg-opacity-50 p-1 px-4 rounded-md"
+                  className="bg-neutral-900 bg-opacity-50 p-1 px-4 rounded-md outline-none"
                 />
               </div>
               <button
@@ -138,7 +138,7 @@ export default function DictPage() {
                   className="flex items-center gap-2"
                 >
                   {/* Reload từ điển server{' '} */}
-                  <IReload className="fill-neutral-100 w-5" />
+                  <IReload className="fill-neutral-300 w-5" />
                 </button>
                 <button
                   onClick={handleDownload}
@@ -146,7 +146,7 @@ export default function DictPage() {
                   className="flex items-center gap-2"
                 >
                   {/* Tải về file từ điển */}
-                  <IDownload className="fill-neutral-100 w-6" />
+                  <IDownload className="fill-neutral-300 w-6" />
                 </button>
               </div>
             </div>
