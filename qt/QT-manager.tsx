@@ -122,6 +122,20 @@ export class QTManager {
     this.personalDict = newPersonDictionary;
   }
 
+  updatePersonalDictionary(newDict: [string, string][]) {
+    setItemLocalStorage(PERSON_DICT_KEY, newDict);
+
+    const newPersonDictionary = new ReverseTrie();
+    newPersonDictionary.batchInsert(newDict);
+    this.personalDict = newPersonDictionary;
+  }
+
+  getPersonalDictionary(): [zh: string, vi: string][] {
+    const existingDictData = getItemLocalStorage(PERSON_DICT_KEY) || [];
+
+    return existingDictData || [];
+  }
+
   async loadDictionary() {
     this.loading = true;
     // load person dictionary

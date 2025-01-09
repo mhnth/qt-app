@@ -1,24 +1,42 @@
 'use client';
 
-import { ICopy, IDelete, IDownload, IUpload } from '@/components/icons';
+import {
+  IBook,
+  ICopy,
+  IDelete,
+  IDownload,
+  ILanguage,
+  IUpload,
+} from '@/components/icons';
 import { Reader } from '@/components/reader/reader';
 import { useQT } from '@/qt/QTContext';
-import { useRef, useState } from 'react';
+import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 
 export default function TranslatePage() {
   const [inputTxt, setInputTxt] = useState('');
   const { translateQT } = useQT();
-  // const [translatedTxt, setTranslatedTxt] = useState('');
-  const [hanviet, setHanviet] = useState<boolean>(false);
-  const [outputFileName, setOutputFileName] = useState('QT.output.file');
+  const [outputFileName, setOutputFileName] = useState('');
 
   const readerRef = useRef<HTMLDivElement>(null);
 
-  // const { loading, revalidate, translateQT } = useQT();
+  useEffect(() => {
+    const savedInputTxt = sessionStorage.getItem('inputTxt');
+    const savedOutputFileName = sessionStorage.getItem('outputFileName');
+
+    if (savedInputTxt) setInputTxt(savedInputTxt);
+    if (savedOutputFileName) setOutputFileName(savedOutputFileName);
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem('inputTxt', inputTxt);
+    sessionStorage.setItem('outputFileName', outputFileName);
+  }, [inputTxt, outputFileName]);
 
   const handleDel = (option: 'in' | 'out') => {
     if (option === 'in') {
       setInputTxt(() => '');
+      setOutputFileName('');
     } else {
       // setTranslatedTxt('');
     }
@@ -80,12 +98,26 @@ export default function TranslatePage() {
   return (
     <div className="mx-auto max-w-5xl p-2 text-white min-h-screen">
       <div
-        className="mt-2 min-h-[100vh] w-full rounded-md flex flex-col bg-neutral-800
-        border p-6 bg-opacity-60 shadow-md border-neutral-600"
+        className="mt-6 md:min-h-max min-h-[100vh] w-full rounded-md flex flex-col bg-neutral-800
+        border px-6 pb-6 bg-opacity-60 shadow-md border-neutral-600"
       >
         <div className="h-max">
+          <div className="mb-6 mt-2 bg-opacity-65 flex gap-4 font-light">
+            <Link className="flex gap-1 items-center" href={'/'}>
+              <ILanguage className="fill-current w-4 h-4" />
+              Dịch
+            </Link>
+            <Link
+              href={'/dict'}
+              className="flex items-center gap-1 text-neutral-300"
+            >
+              <IBook className="fill-current w-3 h-4" />
+              Từ điển cá nhân
+            </Link>
+          </div>
           <div className="flex justify-between">
-            <label htmlFor="">Nhập tiếng trung</label>
+            <label htmlFor="">Văn bản tiếng Trung</label>
+
             <div className="flex items-center gap-8 px-4">
               <label htmlFor="file-upload" className="cursor-pointer">
                 <IUpload className="w-5 fill-neutral-500 dark:fill-neutral-300" />
@@ -107,8 +139,8 @@ export default function TranslatePage() {
           </div>
 
           <textarea
-            className="mt-2 h-[50px] w-full rounded-sm border border-stone-200
-            p-2 outline-none dark:border-neutral-700 bg-neutral-900 bg-opacity-50"
+            className="mt-2 h-[50px] w-full rounded-sm border border-neutral-500
+            p-2 outline-none bg-neutral-900 bg-opacity-50"
             value={inputTxt}
             onChange={(e) => {
               setInputTxt(e.target.value);
@@ -124,13 +156,18 @@ export default function TranslatePage() {
         <div className="mt-3 rounded-md border px-4 border-neutral-600">
           <div className="md:h-max h-screen">
             <div className="flex justify-between items-center border-neutral-600 border-b">
-              <label htmlFor="">Kết quả dịch</label>
+              <label htmlFor="">
+                Kết quả dịch
+                <span className="ml-2 font-light underline">
+                  {outputFileName}
+                </span>
+              </label>
               <div className="flex gap-8">
                 <button onClick={() => handleCopy('out')}>
-                  <ICopy className="w-4 fill-neutral-500 dark:fill-neutral-300" />
+                  <ICopy className="w-4 fill-neutral-300" />
                 </button>
                 <button onClick={handleDownload}>
-                  <IDownload className="w-5 fill-neutral-500 dark:fill-neutral-300" />
+                  <IDownload className="w-5 fill-neutral-300" />
                 </button>
               </div>
             </div>

@@ -52,21 +52,21 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
     }
     addToPersonalDictionary({ zh: chineseWord, vi: vietnameseWord });
 
-    const res = await fetch('/api/dict', {
-      method: 'POST',
-      body: JSON.stringify({
-        filename: fileName,
-        contents: `${chineseWord.trim()}=${vietnameseWord.trim()}`,
-      }),
-    });
+    // const res = await fetch('/api/dict', {
+    //   method: 'POST',
+    //   body: JSON.stringify({
+    //     filename: fileName,
+    //     contents: `${chineseWord.trim()}=${vietnameseWord.trim()}`,
+    //   }),
+    // });
 
-    if (res.ok) {
-      alert(
-        `Đã thêm ${chineseWord}=${vietnameseWord} vào từ điển, load lại để sử dụng`
-      );
-      setChineseWord('');
-      setVietNameseWord('');
-    }
+    // if (res.ok) {
+    //   alert(
+    //     `Đã thêm ${chineseWord}=${vietnameseWord} vào từ điển, load lại để sử dụng`
+    //   );
+    //   setChineseWord('');
+    //   setVietNameseWord('');
+    // }
 
     closeModal();
   };
@@ -181,8 +181,4 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
       </div>
     </>
   );
-};
-
-const SelectMeaning = () => {
-  return <div className="fixed inset-0"></div>;
 };

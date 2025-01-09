@@ -21,6 +21,8 @@ interface QTContextInterface {
   revalidate: () => void;
   translateQT: (rawText: string, hv: boolean) => string | undefined;
   addToPersonalDictionary: ({ zh, vi }: { zh: string; vi: string }) => void;
+  getPersonalDictionary: () => [zh: string, vi: string][];
+  updatePersonalDictionary: (newDict: [string, string][]) => void;
 }
 
 const QTContext = createContext<QTContextInterface | undefined>(undefined);
@@ -61,6 +63,10 @@ export const QTProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         translateQT: contextManager.translateQT.bind(contextManager),
         addToPersonalDictionary:
           contextManager.addToPersonalDictionary.bind(contextManager),
+        getPersonalDictionary:
+          contextManager.getPersonalDictionary.bind(contextManager),
+        updatePersonalDictionary:
+          contextManager.updatePersonalDictionary.bind(contextManager),
       }}
     >
       {children}
