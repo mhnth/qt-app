@@ -181,7 +181,7 @@ export default function TranslatePage() {
                 </button>
               </div>
             </div>
-            <div className="md:h-[600px] mt-4 space-y-8 h-[calc(100vh-37)] overflow-y-scroll w-full text-justify">
+            <div className="md:h-[600px] mt-4 space-y-8 h-[calc(100vh-37px)] overflow-y-scroll w-full text-justify">
               <Reader ref={readerRef} rawText={inputTxt} />
             </div>
           </div>

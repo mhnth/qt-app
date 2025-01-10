@@ -12,6 +12,7 @@ import { capitalizeFirstLetter, cx, splitArray } from '@/lib/utils';
 import { EditQTModal } from './editQT-modal';
 import { useQT } from '@/qt/QTContext';
 import { Spinner } from '../spinner';
+import Paragraph from '../paragraph';
 
 interface ReaderProps extends HTMLAttributes<HTMLDivElement> {
   rawText: string;
@@ -80,10 +81,33 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
   const zhParagraphs = splitArray(zhArr, '\n');
 
+  const selectWord2 = (e: React.MouseEvent<HTMLSpanElement>) => {
+    const target = e.target as HTMLElement;
+
+    // Lấy thông tin từ thuộc tính data-word
+    const zhWord = target.getAttribute('data-word-zh') || '';
+    const viWord = target.getAttribute('data-word-vi') || '';
+
+    // Lấy vị trí modal
+    const spanRect = target.getBoundingClientRect();
+    let modalTop = spanRect.bottom + window.scrollY + 10;
+    let modalLeft = spanRect.left + window.scrollX;
+
+    if (modalLeft + 300 > window.innerWidth) {
+      modalLeft = window.innerWidth - 310;
+    }
+
+    // Cập nhật trạng thái
+    setModalPosition({ top: modalTop, left: modalLeft });
+    setModalVisible(true);
+    setZhWord(zhWord);
+    setViWord(viWord);
+  };
+
   const selectWord = (
-    e: React.MouseEvent<HTMLSpanElement>,
     parIndex: number,
-    wrdIndex: number
+    wrdIndex: number,
+    e: React.MouseEvent<HTMLSpanElement>
   ) => {
     // open modal
     const spanRect = (e.target as HTMLElement).getBoundingClientRect();
@@ -135,6 +159,43 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
     setModalVisible(false);
     setSelectedWordsPosition([]);
   };
+  // return (
+  //   <article
+  //     ref={ref}
+  //     {...props}
+  //     className="mx-auto max-w-4xl h-full px-2 pb-28 md:px-6"
+  //   >
+  //     <div className="mx-auto max-w-4xl px-2 text-justify font-normal leading-10 md:px-16">
+  //       {viParagraphs.map((p, parIndex) => (
+  //         <div key={parIndex} className="contents">
+  //           <Paragraph
+  //             paragraph={p}
+  //             zhParagraph={zhParagraphs[parIndex]}
+  //             parIndex={parIndex}
+  //             currentParPosition={currentParPosition}
+  //             selectedWordsPosition={selectedWordsPosition}
+  //             selectWord={selectWord}
+  //           />
+  //           <br />
+  //         </div>
+  //       ))}
+  //     </div>
+  //     {/* Edit Words Modal */}
+  //     {modalVisible && (
+  //       <EditQTModal
+  //         otherWordMeaning={otherWordMeaning}
+  //         position={{
+  //           top: modalPosition.top,
+  //           left: modalPosition.left,
+  //         }}
+  //         zhWord={zhWord}
+  //         viWord={viWord}
+  //         closeModal={closeModal}
+  //         expandWord={handleExpandWord}
+  //       />
+  //     )}
+  //   </article>
+  // );
 
   return (
     <>
@@ -161,7 +222,9 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                     if (wrdIndex === 0) {
                       return (
                         <span
-                          onClick={(e) => selectWord(e, parIndex, wrdIndex)}
+                          data-word-zh={zhParagraphs[parIndex][wrdIndex]}
+                          data-word-vi={viParagraphs[parIndex][wrdIndex]}
+                          onClick={(e) => selectWord(parIndex, wrdIndex, e)}
                           className={cx(
                             isHighlight && 'bg-orange-500 text-black'
                           )}
@@ -175,8 +238,10 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                     if (/^[.?]+$/.test(p[wrdIndex - 1])) {
                       return (
                         <span
+                          data-word-zh={zhParagraphs[parIndex][wrdIndex]}
+                          data-word-vi={viParagraphs[parIndex][wrdIndex]}
                           onClick={(e) => {
-                            selectWord(e, parIndex, wrdIndex);
+                            selectWord(parIndex, wrdIndex, e);
                           }}
                           key={wrdIndex}
                           className={cx(
@@ -191,8 +256,10 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                     if (p[wrdIndex - 1] === '“')
                       return (
                         <span
+                          data-word-zh={zhParagraphs[parIndex][wrdIndex]}
+                          data-word-vi={viParagraphs[parIndex][wrdIndex]}
                           onClick={(e) => {
-                            selectWord(e, parIndex, wrdIndex);
+                            selectWord(parIndex, wrdIndex, e);
                           }}
                           className={cx(
                             isHighlight && 'bg-orange-500 text-black'
@@ -205,8 +272,10 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
                     return (
                       <span
+                        data-word-zh={zhParagraphs[parIndex][wrdIndex]}
+                        data-word-vi={viParagraphs[parIndex][wrdIndex]}
                         onClick={(e) => {
-                          selectWord(e, parIndex, wrdIndex);
+                          selectWord(parIndex, wrdIndex, e);
                         }}
                         key={wrdIndex}
                         className={cx(
