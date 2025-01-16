@@ -63,7 +63,10 @@ export function getZhViPairs(
         char !== '地'
       ) {
         const fallbackValue = chinesePhienAm[char] || char;
-        tokens.push({ vi: fallbackValue, zh: char });
+        tokens.push({
+          vi: fallbackValue.charAt(0).toUpperCase() + fallbackValue.slice(1),
+          zh: char,
+        });
       }
       i += 1;
     }
