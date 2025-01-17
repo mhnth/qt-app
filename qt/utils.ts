@@ -64,7 +64,8 @@ export function getZhViPairs(
       ) {
         const fallbackValue = chinesePhienAm[char] || char;
         tokens.push({
-          vi: fallbackValue.charAt(0).toUpperCase() + fallbackValue.slice(1),
+          // vi: fallbackValue.charAt(0).toUpperCase() + fallbackValue.slice(1),
+          vi: fallbackValue,
           zh: char,
         });
       }
