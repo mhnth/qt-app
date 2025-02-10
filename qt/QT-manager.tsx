@@ -29,11 +29,14 @@ export class QTManager {
     this.chinesePhienAm = hanviet; // Default value
   }
 
-  async loadFile(fileName: 'Names' | 'VietPhrase', trie: Trie) {
+  async loadFile(fileName: 'Names' | 'VietPhrase', trie: ReverseTrie) {
     let entries: [string, string][] = (await this.loadData(fileName)) || [];
+
     let data = '';
 
     if (entries.length === 0) {
+      console.log('load new dick');
+
       try {
         const [fileName1, fileName2] =
           fileName === 'Names' ? ['Names', 'Names2'] : ['VietPhrase', 'VP2'];
@@ -66,6 +69,8 @@ export class QTManager {
         console.log(
           `Loaded and cached ${entries.length} entries from ${fileName}`
         );
+
+        // return entries;
       } catch (err) {
         console.warn(`${fileName} not found. Proceeding without data.`);
       }
@@ -147,15 +152,20 @@ export class QTManager {
       this.personalDict = personDict;
     }
 
-    const [names, vietPhrase] = [new ReverseTrie(), new ReverseTrie()];
+    // const [names, vietPhrase] = [new ReverseTrie(), new ReverseTrie()];
+
+    [this.trieNames, this.trieVietPhrase] = [
+      new ReverseTrie(),
+      new ReverseTrie(),
+    ];
 
     await Promise.all([
-      this.loadFile('Names', names),
-      this.loadFile('VietPhrase', vietPhrase),
+      this.loadFile('Names', this.trieNames),
+      this.loadFile('VietPhrase', this.trieVietPhrase),
     ]);
 
-    this.trieNames = names;
-    this.trieVietPhrase = vietPhrase;
+    // this.trieNames = names;
+    // this.trieVietPhrase = vietPhrase;
 
     this.loading = false;
   }
@@ -163,6 +173,11 @@ export class QTManager {
   async revalidate() {
     this.loading = true;
     await clearDB();
+
+    this.trieNames = new ReverseTrie();
+    this.trieVietPhrase = new ReverseTrie();
+    this.personalDict = new ReverseTrie();
+
     await this.loadDictionary();
     this.loading = false;
   }

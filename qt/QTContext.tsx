@@ -7,7 +7,7 @@ import {
   useContext,
   createContext,
 } from 'react';
-import { useIndexedDB } from './useIndexedDB';
+import { clearDB, useIndexedDB } from './useIndexedDB';
 import { QTManager } from './QT-manager';
 
 interface QTContextInterface {
@@ -51,7 +51,25 @@ export const QTProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const revalidateQT = async () => {
     setLoading(true);
     await contextManager.revalidate();
+    // const manager = new QTManager(saveData, loadData);
+    // setContextManager(manager);
+    // manager.loadDictionary().then(() => {
+    //   setLoading(false);
+    // });
     setLoading(false);
+
+    // setLoading(true);
+
+    // Xóa contextManager trước khi tạo lại
+    // setContextManager(null);
+
+    // await clearDB(); // Xóa dữ liệu cũ trong IndexedDB
+
+    // const newManager = new QTManager(saveData, loadData);
+    // await newManager.loadDictionary(); // Đảm bảo dữ liệu mới được tải
+
+    // setContextManager(newManager);
+    // setLoading(false);
   };
 
   return (
