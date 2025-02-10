@@ -56,11 +56,12 @@ export function getZhViPairs(
       // Fallback to ChinesePhienAmWord
       const char = text[i];
       if (
-        char !== '的' &&
-        char !== '了' &&
-        char !== '著' &&
-        char !== '地' &&
-        char !== '地'
+        // char !== '的' &&
+        // char !== '了' &&
+        // char !== '著' &&
+        // char !== '地' &&
+        // char !== '地'
+        1
       ) {
         const fallbackValue = chinesePhienAm[char] || char;
         tokens.push({
