@@ -41,21 +41,68 @@ export class QTManager {
         const [fileName1, fileName2] =
           fileName === 'Names' ? ['Names', 'Names2'] : ['VietPhrase', 'VP2'];
 
-        const [res1, res2] = await Promise.all([
-          await fetch(`https://catnipzz.github.io/${fileName1}.txt`, {
-            cache: 'no-store',
-          }),
-          await fetch(`https://catnipzz.github.io/${fileName2}.txt`, {
-            cache: 'no-store',
-          }),
-        ]);
+        if (fileName === 'Names') {
+          const [res1, res2] = await Promise.all([
+            await fetch(`https://catnipzz.github.io/${fileName1}.txt`, {
+              cache: 'no-store',
+            }),
+            await fetch(`https://catnipzz.github.io/${fileName2}.txt`, {
+              cache: 'no-store',
+            }),
+          ]);
 
-        const [data1, data2] = await Promise.all([
-          await res1.text(),
-          await res2.text(),
-        ]);
+          const [data1, data2] = await Promise.all([
+            await res1.text(),
+            await res2.text(),
+          ]);
 
-        data = data1 + '\n' + data2;
+          data = data1 + '\n' + data2;
+        } else {
+          const [res1, res2, res3, res4, res5] = await Promise.all([
+            await fetch(`https://catnipzz.github.io/VP1.txt`, {
+              cache: 'no-store',
+            }),
+            await fetch(`https://catnipzz.github.io/VP2.txt`, {
+              cache: 'no-store',
+            }),
+            await fetch(`https://catnipzz.github.io/VP3.txt`, {
+              cache: 'no-store',
+            }),
+            await fetch(`https://catnipzz.github.io/VP4.txt`, {
+              cache: 'no-store',
+            }),
+            await fetch(`https://catnipzz.github.io/VP5.txt`, {
+              cache: 'no-store',
+            }),
+          ]);
+
+          const [data1, data2, data3, data4, data5] = await Promise.all([
+            await res1.text(),
+            await res2.text(),
+            await res3.text(),
+            await res4.text(),
+            await res5.text(),
+          ]);
+
+          data =
+            data1 + '\n' + data2 + '\n' + data3 + '\n' + data4 + '\n' + data5;
+        }
+
+        // const [res1, res2] = await Promise.all([
+        //   await fetch(`https://catnipzz.github.io/${fileName1}.txt`, {
+        //     cache: 'no-store',
+        //   }),
+        //   await fetch(`https://catnipzz.github.io/${fileName2}.txt`, {
+        //     cache: 'no-store',
+        //   }),
+        // ]);
+
+        // const [data1, data2] = await Promise.all([
+        //   await res1.text(),
+        //   await res2.text(),
+        // ]);
+
+        // data = data1 + '\n' + data2;
 
         entries = data
           .split('\n')
