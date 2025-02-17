@@ -14,9 +14,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 export default function TranslatePage() {
-  const CHUNK_SIZE = 10000; // Kích thước mỗi lần tải thêm
-  const MAX_VISIBLE_TEXT = 20000; // Giới hạn tối đa chữ hiển thị
-
+  const CHUNK_SIZE = 10000; // Số ký tự tối đa hiển thị mỗi lần
   const { translateQT } = useQT();
 
   const [inputTxt, setInputTxt] = useState('');
@@ -81,22 +79,8 @@ export default function TranslatePage() {
   };
 
   // Tải file kết quả xuống
-  // const handleDownload = () => {
-  //   const blob = new Blob([visibleText], { type: 'text/plain' });
-  //   const url = URL.createObjectURL(blob);
-  //   const link = document.createElement('a');
-  //   link.href = url;
-  //   link.download = outputFileName;
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
-  //   URL.revokeObjectURL(url);
-  // };
-
   const handleDownload = () => {
-    const translatedText = translateQT(inputTxt, false);
-    if (!translatedText) return alert('❌ tải xuống không thành công');
-    const blob = new Blob([translatedText], { type: 'text/plain' });
+    const blob = new Blob([visibleText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -112,14 +96,7 @@ export default function TranslatePage() {
     if (currentIndex >= inputTxt.length) return;
 
     const nextIndex = Math.min(currentIndex + CHUNK_SIZE, inputTxt.length);
-    setVisibleText((prev) => {
-      // Cắt bớt phần đầu nếu đã vượt quá giới hạn chữ hiển thị
-      const newText = prev + inputTxt.slice(currentIndex, nextIndex);
-      if (newText.length > MAX_VISIBLE_TEXT) {
-        return newText.slice(newText.length - MAX_VISIBLE_TEXT); // Giới hạn số lượng chữ
-      }
-      return newText;
-    });
+    setVisibleText((prev) => prev + inputTxt.slice(currentIndex, nextIndex));
     setCurrentIndex(nextIndex);
   };
 
@@ -129,14 +106,18 @@ export default function TranslatePage() {
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
+        console.log('entry', entries);
+
         if (entries[0].isIntersecting) {
+          console.log('📌 Sentinel xuất hiện → Load thêm văn bản!');
+
           loadMoreText();
         }
       },
       {
-        root: readerRef.current, // Gán root là container cuộn
-        rootMargin: '50px',
-        threshold: 0.1,
+        root: readerRef.current, // Gán root là container cuộn thay vì viewport trình duyệt
+        rootMargin: '50px', // Phát hiện sớm khi gần cuối
+        threshold: 0.1, // Kích hoạt khi sentinel xuất hiện 50% trong container
       }
     );
 

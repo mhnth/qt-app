@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import React, {
   ForwardedRef,
   HTMLAttributes,
+  RefObject,
   useEffect,
   useState,
 } from 'react';
@@ -12,7 +12,6 @@ import { capitalizeFirstLetter, cx, splitArray } from '@/lib/utils';
 import { EditQTModal } from './editQT-modal';
 import { useQT } from '@/qt/QTContext';
 import { Spinner } from '../spinner';
-import Paragraph from '../paragraph';
 
 interface ReaderProps extends HTMLAttributes<HTMLDivElement> {
   rawText: string;
@@ -28,6 +27,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
   const [selectedWordsPosition, setSelectedWordsPosition] = useState<number[]>(
     []
   );
+
   const [zhWord, setZhWord] = useState<string>('');
   const [viWord, setViWord] = useState<string>('');
   const [otherWordMeaning, setOtherWordMeaning] = useState<
@@ -159,50 +159,13 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
     setModalVisible(false);
     setSelectedWordsPosition([]);
   };
-  // return (
-  //   <article
-  //     ref={ref}
-  //     {...props}
-  //     className="mx-auto max-w-4xl h-full px-2 pb-28 md:px-6"
-  //   >
-  //     <div className="mx-auto max-w-4xl px-2 text-justify font-normal leading-10 md:px-16">
-  //       {viParagraphs.map((p, parIndex) => (
-  //         <div key={parIndex} className="contents">
-  //           <Paragraph
-  //             paragraph={p}
-  //             zhParagraph={zhParagraphs[parIndex]}
-  //             parIndex={parIndex}
-  //             currentParPosition={currentParPosition}
-  //             selectedWordsPosition={selectedWordsPosition}
-  //             selectWord={selectWord}
-  //           />
-  //           <br />
-  //         </div>
-  //       ))}
-  //     </div>
-  //     {/* Edit Words Modal */}
-  //     {modalVisible && (
-  //       <EditQTModal
-  //         otherWordMeaning={otherWordMeaning}
-  //         position={{
-  //           top: modalPosition.top,
-  //           left: modalPosition.left,
-  //         }}
-  //         zhWord={zhWord}
-  //         viWord={viWord}
-  //         closeModal={closeModal}
-  //         expandWord={handleExpandWord}
-  //       />
-  //     )}
-  //   </article>
-  // );
 
   return (
     <>
       <article
         ref={ref}
         {...props}
-        className="mx-auto max-w-4xl h-full px-2 pb-28 md:px-6"
+        className="mx-auto max-w-4xl h-max px-2 pb-28 md:px-6"
       >
         <div
           className="mx-auto max-w-4xl px-2

@@ -143,7 +143,7 @@ export function translateZhToVi(
 
     // Detect non-Chinese sequences
     while (i < text.length && (isAlphaNumeric(text[i]) || text[i] == '/')) {
-      nonChineseWord += text[i];
+      nonChineseWord = text[i] + nonChineseWord;
       i++;
     }
 

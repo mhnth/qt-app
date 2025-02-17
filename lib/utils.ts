@@ -38,7 +38,7 @@ export function formDataToObject<T>(formData: FormData) {
 export const truncateStr = (
   input: string,
   max: number,
-  dot: boolean = false,
+  dot: boolean = false
 ): string => {
   if (input.length > max && dot) {
     return `${input.substring(0, max)}...`;
@@ -61,14 +61,14 @@ export function splitArray<T>(arr: T[], delimiter: T): T[][] {
   }, []);
 }
 
-export const formatTxt = (text: string) => {
+export const formatTxt1 = (text: string) => {
   return text
     .replace(/ +([,.?!\]\>:};)])/g, '$1 ')
     .replace(/ +([”’])/g, '$1')
     .replace(/([<\[(“‘{]) +/g, ' $1')
     .replace(
       /(^\s*|[“‘”’.!?\[-]\s*)(\p{Ll})/gmu,
-      (_, p1, p2) => p1 + p2.toUpperCase(),
+      (_, p1, p2) => p1 + p2.toUpperCase()
     )
     .replace(/ +/g, ' ')
     .replace('「', ' "') // Thay dấu mở 「 bằng dấu "
@@ -82,6 +82,30 @@ export const formatTxt = (text: string) => {
       // Nếu không có từ nào sau số chương, giữ nguyên tiêu đề
       return chapter;
     });
+};
+
+export const formatTxt = (text: string) => {
+  return text
+    .replace(/ +([,.?!\]\>:};)])/g, '$1 ') // Đảm bảo có một khoảng trắng sau dấu câu
+    .replace(/ +([”’])/g, '$1') // Loại bỏ khoảng trắng dư thừa trước dấu " và '
+    .replace(/([<\[(“‘{]) +/g, ' $1') // Loại bỏ khoảng trắng dư thừa sau các dấu mở ngoặc
+    .replace(
+      /(^\s*|[“‘”’.!?\[-]\s*)(\p{Ll})/gmu,
+      (_, p1, p2) => p1 + p2.toUpperCase()
+    ) // Viết hoa chữ cái đầu sau dấu câu
+    .replace(/ +/g, ' ') // Loại bỏ khoảng trắng dư thừa
+    .replace('「', ' "') // Thay dấu mở 「 bằng dấu "
+    .replace('」', '" ') // Thay dấu đóng 」 bằng dấu "
+    .replace(/"\s*(.*?)\s*"/g, (_, content) => `"${content.trim()}"`) // Trim dấu ngoặc kép
+    .replace(/(\bChương\s+\d+)\s+(\w)/i, (_, chapter, firstLetter) => {
+      // Nếu có từ sau số chương, thêm dấu `:` và viết hoa chữ cái đầu
+      if (firstLetter) {
+        return `${chapter}: ${firstLetter.toUpperCase()}`;
+      }
+      // Nếu không có từ nào sau số chương, giữ nguyên tiêu đề
+      return chapter;
+    })
+    .replace(/(\n|\r\n|\r)/g, '\n\n'); // Thêm 2 lần xuống dòng sau mỗi đoạn
 };
 
 export function formatNumber(value: number): string {

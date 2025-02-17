@@ -14,21 +14,18 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 export default function TranslatePage() {
-  const CHUNK_SIZE = 10000; // Kích thước mỗi lần tải thêm
-  const MAX_VISIBLE_TEXT = 20000; // Giới hạn tối đa chữ hiển thị
-
-  const { translateQT } = useQT();
+  const CHUNK_SIZE = 10000; // Số ký tự tối đa hiển thị mỗi lần
+  const LOAD_THRESHOLD = 50; // Ngưỡng cuộn để tải thêm dữ liệu
 
   const [inputTxt, setInputTxt] = useState('');
+  const { translateQT } = useQT();
   const [outputFileName, setOutputFileName] = useState('');
+
   const [visibleText, setVisibleText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
-
   const readerRef = useRef<HTMLDivElement>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
-  // Load dữ liệu từ sessionStorage khi khởi động
+  // Load sessionStorage nếu có
   useEffect(() => {
     const savedInputTxt = sessionStorage.getItem('inputTxt');
     const savedOutputFileName = sessionStorage.getItem('outputFileName');
@@ -37,19 +34,17 @@ export default function TranslatePage() {
     if (savedOutputFileName) setOutputFileName(savedOutputFileName);
   }, []);
 
-  // Lưu input vào sessionStorage khi thay đổi
   useEffect(() => {
     sessionStorage.setItem('inputTxt', inputTxt);
     sessionStorage.setItem('outputFileName', outputFileName);
   }, [inputTxt, outputFileName]);
 
-  // Cắt nhỏ văn bản ban đầu và cập nhật hiển thị
+  // Cắt nhỏ văn bản và cập nhật hiển thị
   useEffect(() => {
     setVisibleText(inputTxt.slice(0, CHUNK_SIZE));
     setCurrentIndex(CHUNK_SIZE);
   }, [inputTxt]);
 
-  // Xóa nội dung
   const handleDel = () => {
     setInputTxt('');
     setOutputFileName('');
@@ -57,13 +52,11 @@ export default function TranslatePage() {
     setCurrentIndex(0);
   };
 
-  // Sao chép nội dung hiển thị vào clipboard
   const handleCopy = () => {
     navigator.clipboard.writeText(visibleText);
     alert('Đã sao chép kết quả vào khay nhớ tạm');
   };
 
-  // Xử lý tải file văn bản lên
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -71,7 +64,7 @@ export default function TranslatePage() {
     const reader = new FileReader();
     reader.onload = () => {
       const content = reader.result as string;
-      setInputTxt(content.replace(/\r?\n/g, '\n'));
+      setInputTxt(content.replaceAll(/[\n\r]+/g, '\n'));
     };
 
     const fileName = file.name.replace('.txt', '');
@@ -80,23 +73,8 @@ export default function TranslatePage() {
     reader.readAsText(file);
   };
 
-  // Tải file kết quả xuống
-  // const handleDownload = () => {
-  //   const blob = new Blob([visibleText], { type: 'text/plain' });
-  //   const url = URL.createObjectURL(blob);
-  //   const link = document.createElement('a');
-  //   link.href = url;
-  //   link.download = outputFileName;
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
-  //   URL.revokeObjectURL(url);
-  // };
-
   const handleDownload = () => {
-    const translatedText = translateQT(inputTxt, false);
-    if (!translatedText) return alert('❌ tải xuống không thành công');
-    const blob = new Blob([translatedText], { type: 'text/plain' });
+    const blob = new Blob([visibleText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -107,50 +85,43 @@ export default function TranslatePage() {
     URL.revokeObjectURL(url);
   };
 
-  // Load thêm nội dung khi sentinel xuất hiện
+  // Xử lý sự kiện cuộn để tải thêm nội dung
+  const handleScroll = () => {
+    console.log('scrolling');
+
+    if (!readerRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = readerRef.current;
+
+    if (scrollTop + clientHeight >= scrollHeight - LOAD_THRESHOLD) {
+      loadMoreText();
+    }
+  };
+
   const loadMoreText = () => {
     if (currentIndex >= inputTxt.length) return;
 
     const nextIndex = Math.min(currentIndex + CHUNK_SIZE, inputTxt.length);
-    setVisibleText((prev) => {
-      // Cắt bớt phần đầu nếu đã vượt quá giới hạn chữ hiển thị
-      const newText = prev + inputTxt.slice(currentIndex, nextIndex);
-      if (newText.length > MAX_VISIBLE_TEXT) {
-        return newText.slice(newText.length - MAX_VISIBLE_TEXT); // Giới hạn số lượng chữ
-      }
-      return newText;
-    });
+    setVisibleText(
+      (prev) =>
+        prev.split('\n').slice(-1)[0] + inputTxt.slice(currentIndex, nextIndex)
+    );
     setCurrentIndex(nextIndex);
   };
 
-  // Sử dụng Intersection Observer để tải nội dung khi sentinel xuất hiện
   useEffect(() => {
-    if (!sentinelRef.current || !readerRef.current) return;
+    const container = readerRef.current;
+    console.log('container', container);
 
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMoreText();
-        }
-      },
-      {
-        root: readerRef.current, // Gán root là container cuộn
-        rootMargin: '50px',
-        threshold: 0.1,
-      }
-    );
-
-    observerRef.current.observe(sentinelRef.current);
-
-    return () => observerRef.current?.disconnect();
-  }, [currentIndex, inputTxt]);
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [currentIndex]);
 
   return (
     <div className="mx-auto max-w-5xl p-2 text-white min-h-screen">
-      <div
-        className="mt-6 md:min-h-max min-h-[100vh] w-full rounded-md flex flex-col bg-neutral-800 
-                   border px-6 pb-6 bg-opacity-60 shadow-md border-neutral-600"
-      >
+      <div className="mt-6 md:min-h-max min-h-[100vh] w-full rounded-md flex flex-col bg-neutral-800 border px-6 pb-6 bg-opacity-60 shadow-md border-neutral-600">
         <div className="h-max">
           <div className="mb-6 mt-2 flex gap-4 font-light">
             <Link className="flex gap-1 items-center" href={'/'}>
@@ -217,7 +188,6 @@ export default function TranslatePage() {
               className="md:h-[600px] mt-4 h-[calc(100vh-37px)] overflow-y-scroll text-justify"
             >
               <Reader rawText={visibleText} />
-              <div ref={sentinelRef} className="h-28 bg-transparent" />
             </div>
           </div>
         </div>
