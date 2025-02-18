@@ -38,7 +38,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
   function copyToClipboard(text: string) {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);
-      alert(`Đã copy ${chineseWord}`);
+      alert(`✔️ Đã copy ${chineseWord}`);
     } else {
       console.error('Browser not support clipboard API');
     }
@@ -47,7 +47,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
   const handleSubmit = async (e: FormEvent, fileName: string) => {
     e.preventDefault();
     if (!chineseWord || !vietnameseWord || vietnameseWord === viWord) {
-      alert('Không hợp lệ, vui lòng xem hướng dẫn');
+      alert('❌ Không hợp lệ, vui lòng xem hướng dẫn');
       return;
     }
     addToPersonalDictionary({ zh: chineseWord, vi: vietnameseWord });

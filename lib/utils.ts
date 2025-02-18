@@ -156,3 +156,23 @@ export const getItemLocalStorage = (key: string) => {
     return null;
   }
 };
+
+export function splitIntoChunks(input: string, max: number = 1000): string[] {
+  const chunks = [];
+  let start = 0;
+  while (start < input.length) {
+    let end = start + max;
+    if (end < input.length) {
+      // Tìm vị trí xuống dòng gần nhất trước max length
+      end = input.lastIndexOf('\n', end);
+      if (end === -1) {
+        end = start + max;
+      } else {
+        end++; // Xuống dòng nằm tại end position
+      }
+    }
+    chunks.push(input.substring(start, end));
+    start = end;
+  }
+  return chunks;
+}

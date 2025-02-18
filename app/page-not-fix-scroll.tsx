@@ -9,29 +9,26 @@ import {
   IUpload,
 } from '@/components/icons';
 import { Reader } from '@/components/reader/reader';
-import { splitIntoChunks } from '@/lib/utils';
 import { useQT } from '@/qt/QTContext';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 export default function TranslatePage() {
-  const initialPart = 3;
+  const CHUNK_SIZE = 10000; // Kích thước mỗi lần tải thêm
+  const MAX_VISIBLE_TEXT = 20000; // Giới hạn tối đa chữ hiển thị
+
   const { translateQT } = useQT();
 
   const [inputTxt, setInputTxt] = useState('');
   const [outputFileName, setOutputFileName] = useState('');
   const [visibleText, setVisibleText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const readerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  const textParts = splitIntoChunks(inputTxt, 10000);
-
-  const [currentTextPart, setCurrentTextPart] = useState(initialPart);
-  const [prevTextHeight, setPrevTextHeight] = useState(0);
-  const [scrollPoint, setScrollPoint] = useState(0);
-
+  // Load dữ liệu từ sessionStorage khi khởi động
   useEffect(() => {
     const savedInputTxt = sessionStorage.getItem('inputTxt');
     const savedOutputFileName = sessionStorage.getItem('outputFileName');
@@ -40,27 +37,33 @@ export default function TranslatePage() {
     if (savedOutputFileName) setOutputFileName(savedOutputFileName);
   }, []);
 
+  // Lưu input vào sessionStorage khi thay đổi
   useEffect(() => {
     sessionStorage.setItem('inputTxt', inputTxt);
     sessionStorage.setItem('outputFileName', outputFileName);
   }, [inputTxt, outputFileName]);
 
+  // Cắt nhỏ văn bản ban đầu và cập nhật hiển thị
   useEffect(() => {
-    setVisibleText(textParts[currentTextPart] || '');
+    setVisibleText(inputTxt.slice(0, CHUNK_SIZE));
+    setCurrentIndex(CHUNK_SIZE);
   }, [inputTxt]);
 
+  // Xóa nội dung
   const handleDel = () => {
     setInputTxt('');
     setOutputFileName('');
     setVisibleText('');
-    setCurrentTextPart(0);
+    setCurrentIndex(0);
   };
 
+  // Sao chép nội dung hiển thị vào clipboard
   const handleCopy = () => {
     navigator.clipboard.writeText(visibleText);
     alert('✔️ Đã sao chép kết quả vào khay nhớ tạm');
   };
 
+  // Xử lý tải file văn bản lên
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -77,6 +80,19 @@ export default function TranslatePage() {
     reader.readAsText(file);
   };
 
+  // Tải file kết quả xuống
+  // const handleDownload = () => {
+  //   const blob = new Blob([visibleText], { type: 'text/plain' });
+  //   const url = URL.createObjectURL(blob);
+  //   const link = document.createElement('a');
+  //   link.href = url;
+  //   link.download = outputFileName;
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  //   URL.revokeObjectURL(url);
+  // };
+
   const handleDownload = () => {
     const translatedText = translateQT(inputTxt, false);
     if (!translatedText) return alert('❌ tải xuống không thành công');
@@ -91,46 +107,34 @@ export default function TranslatePage() {
     URL.revokeObjectURL(url);
   };
 
+  // Load thêm nội dung khi sentinel xuất hiện
   const loadMoreText = () => {
-    console.log('run load');
+    if (currentIndex >= inputTxt.length) return;
 
-    const nextPart = currentTextPart + 1;
-
-    if (nextPart >= textParts.length) return;
-
-    const newText =
-      currentTextPart !== initialPart
-        ? textParts[nextPart - 1] + textParts[nextPart]
-        : textParts[currentTextPart];
-
-    setVisibleText(newText);
-    setCurrentTextPart(nextPart);
+    const nextIndex = Math.min(currentIndex + CHUNK_SIZE, inputTxt.length);
+    setVisibleText((prev) => {
+      // Cắt bớt phần đầu nếu đã vượt quá giới hạn chữ hiển thị
+      const newText = prev + inputTxt.slice(currentIndex, nextIndex);
+      if (newText.length > MAX_VISIBLE_TEXT) {
+        return newText.slice(newText.length - MAX_VISIBLE_TEXT); // Giới hạn số lượng chữ
+      }
+      return newText;
+    });
+    setCurrentIndex(nextIndex);
   };
 
-  console.log('curr', currentTextPart);
-
+  // Sử dụng Intersection Observer để tải nội dung khi sentinel xuất hiện
   useEffect(() => {
-    if (!sentinelRef.current || !readerRef.current || !inputTxt) return;
-
-    const currentScrollHeight = readerRef.current.scrollHeight;
-    const newPrevTextHeight = currentScrollHeight - prevTextHeight;
-
-    console.log('scroll, text height', currentScrollHeight, newPrevTextHeight);
+    if (!sentinelRef.current || !readerRef.current) return;
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          //calc reading point when delete prev text part
-          const newReadingPoint =
-            readerRef.current?.scrollTop! - prevTextHeight;
-          setScrollPoint(newReadingPoint);
-
           loadMoreText();
         }
       },
       {
         root: readerRef.current, // Gán root là container cuộn
-        // rootMargin: `${currentScrollHeight / 10}px`,
         rootMargin: '50px',
         threshold: 0.1,
       }
@@ -139,25 +143,7 @@ export default function TranslatePage() {
     observerRef.current.observe(sentinelRef.current);
 
     return () => observerRef.current?.disconnect();
-  }, [currentTextPart, inputTxt]);
-
-  useEffect(() => {
-    if (!readerRef.current) return;
-
-    setPrevTextHeight(readerRef.current.scrollHeight);
-  }, [inputTxt]);
-
-  useEffect(() => {
-    if (!readerRef.current) return;
-
-    setPrevTextHeight((prev) => readerRef!.current!.scrollHeight - prev);
-  }, [currentTextPart]);
-
-  useEffect(() => {
-    if (readerRef.current) {
-      readerRef.current.scrollTop = scrollPoint + 100;
-    }
-  }, [scrollPoint]);
+  }, [currentIndex, inputTxt]);
 
   return (
     <div className="mx-auto max-w-5xl p-2 text-white min-h-screen">
