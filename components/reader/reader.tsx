@@ -104,7 +104,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
     setViWord(viWord);
   };
 
-  const selectWord = (
+  const selectWord1 = (
     parIndex: number,
     wrdIndex: number,
     e: React.MouseEvent<HTMLSpanElement>
@@ -155,6 +155,59 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
     setCurrentWordPosition(newIndex);
   };
 
+  const selectWord = (
+    parIndex: number,
+    wrdIndex: number,
+    e: React.MouseEvent<HTMLSpanElement>
+  ) => {
+    const target = e.target as HTMLElement;
+    const spanRect = target.getBoundingClientRect();
+
+    // 📌 Lấy vị trí của Virtuoso Scroller
+    const virtuosoScroller = document.querySelector(
+      '#virtuoso-container'
+    ) as HTMLElement;
+    if (!virtuosoScroller) return;
+
+    const virtuosoRect = virtuosoScroller.getBoundingClientRect();
+    const virtuosoScrollTop = virtuosoScroller.scrollTop; // 🛠 Lấy vị trí scroll thực tế
+
+    // 🔄 Tính vị trí modal theo container (không bị lệch khi cuộn)
+    let modalTop = spanRect.bottom - virtuosoRect.top + virtuosoScrollTop + 10;
+    let modalLeft = spanRect.left - virtuosoRect.left;
+
+    // console.log(
+    //   'spanRect:',
+    //   spanRect.top,
+    //   spanRect.left,
+    //   'modal:',
+    //   modalTop,
+    //   modalLeft,
+    //   'virtuoso:',
+    //   virtuosoRect.top,
+    //   virtuosoScrollTop
+    // );
+
+    // 🛑 Giữ modal trong màn hình
+    const modalWidth = 300;
+    if (modalLeft + modalWidth > window.innerWidth) {
+      modalLeft = window.innerWidth - modalWidth - 10;
+    }
+    if (modalLeft < 0) {
+      modalLeft = 10;
+    }
+
+    setModalPosition({ top: modalTop, left: modalLeft });
+    setModalVisible(true);
+
+    setZhWord(zhParagraphs[parIndex][wrdIndex]);
+    setViWord(viParagraphs[parIndex][wrdIndex]);
+
+    setCurrentParPosition(parIndex);
+    setCurrentWordPosition(wrdIndex);
+    setSelectedWordsPosition([wrdIndex]);
+  };
+
   const closeModal = () => {
     setModalVisible(false);
     setSelectedWordsPosition([]);
@@ -165,7 +218,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
       <article
         ref={ref}
         {...props}
-        className="mx-auto max-w-4xl h-max px-2 pb-28 md:px-6"
+        className="mx-auto max-w-4xl h-max px-2 md:px-6"
       >
         <div
           className="mx-auto max-w-4xl px-2
