@@ -190,8 +190,9 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
     // 🛑 Giữ modal trong màn hình
     const modalWidth = 300;
-    if (modalLeft + modalWidth > window.innerWidth) {
-      modalLeft = window.innerWidth - modalWidth - 10;
+    const containerWidth = virtuosoRect.width;
+    if (modalLeft + modalWidth > containerWidth) {
+      modalLeft = containerWidth - modalWidth - 10;
     }
     if (modalLeft < 0) {
       modalLeft = 10;
