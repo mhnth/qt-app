@@ -105,7 +105,7 @@ export const formatTxt = (text: string) => {
       // Nếu không có từ nào sau số chương, giữ nguyên tiêu đề
       return chapter;
     })
-    .replace(/(\n|\r\n|\r)/g, '\n\n'); // Thêm 2 lần xuống dòng sau mỗi đoạn
+    .replace(/(\n|\r\n|\r)/g, '\n'); // Thêm 2 lần xuống dòng sau mỗi đoạn
 };
 
 export function formatNumber(value: number): string {
@@ -157,10 +157,131 @@ export const getItemLocalStorage = (key: string) => {
   }
 };
 
+// chia chương bình thường theo tiêu đề
+// export function splitIntoChunks(text: string, max = 20000) {
+//   // Cập nhật regex để nhận diện đúng tiêu đề chương
+//   const chapterRegex = /第[一二三四五六七八九十0-9]+章[:：]?[^\n]*/g;
+//   const chapters = [];
+//   let match;
+//   let lastIndex = 0;
+//   let prevTitle = null;
+
+//   while ((match = chapterRegex.exec(text)) !== null) {
+//     const chapterTitle = match[0];
+//     const chapterContent = text.slice(lastIndex, match.index).trim();
+
+//     // Nếu đây là chương đầu tiên, kiểm tra phần giới thiệu
+//     if (!prevTitle && lastIndex === 0 && chapterContent) {
+//       chapters.push('Intro\n' + chapterContent);
+//     }
+
+//     // Nếu có nội dung trước tiêu đề chương, thêm vào danh sách
+//     if (prevTitle && chapterContent) {
+//       chapters.push(prevTitle + '\n' + chapterContent);
+//     }
+
+//     prevTitle = chapterTitle;
+//     lastIndex = chapterRegex.lastIndex;
+//   }
+
+//   // Xử lý chương cuối cùng
+//   const finalChapterContent = text.slice(lastIndex).trim();
+//   if (finalChapterContent && prevTitle) {
+//     chapters.push(prevTitle + '\n' + finalChapterContent);
+//   }
+
+//   return chapters;
+// }
+
+// chia chương và lưu danh sách chương vào localStorage
+
+export function splitIntoChapters(text: string, max = 20000) {
+  const chapterRegex = /第[一二三四五六七八九十0-9]+章[:：]?[^\n]*/g;
+  const chapters = [];
+  const chapterTitles = [];
+  let match;
+  let lastIndex = 0;
+  let prevTitle = null;
+
+  while ((match = chapterRegex.exec(text)) !== null) {
+    const chapterTitle = match[0];
+    chapterTitles.push(chapterTitle); // Lưu tiêu đề chương vào mảng
+
+    const chapterContent = text.slice(lastIndex, match.index).trim();
+
+    if (!prevTitle && lastIndex === 0 && chapterContent) {
+      chapters.push('-----MeVV-----\n' + chapterContent);
+    }
+
+    if (prevTitle && chapterContent) {
+      chapters.push(prevTitle + '\n' + chapterContent);
+    }
+
+    prevTitle = chapterTitle;
+    lastIndex = chapterRegex.lastIndex;
+  }
+
+  const finalChapterContent = text.slice(lastIndex).trim();
+  if (finalChapterContent && prevTitle) {
+    chapters.push(prevTitle + '\n' + finalChapterContent);
+  }
+
+  // ✅ Lưu danh sách tiêu đề chương vào localStorage
+  localStorage.setItem('chapterTitles', JSON.stringify(chapterTitles));
+
+  return chapters;
+}
+
+// export function splitIntoChunks(text: string, max = 20000) {
+//   // Cập nhật regex để nhận diện đúng tiêu đề chương
+//   const chapterRegex = /第[一二三四五六七八九十0-9]+章[:：]?[^\n]*/g;
+//   const chapters = [];
+//   let match;
+//   let lastIndex = 0;
+
+//   // Kiểm tra nếu có phần giới thiệu trước chương đầu tiên
+//   const firstChapterMatch = chapterRegex.exec(text);
+//   if (firstChapterMatch) {
+//     // Phần giới thiệu là nội dung trước chương đầu tiên
+//     const introContent = text.slice(0, firstChapterMatch.index).trim();
+//     if (introContent) {
+//       chapters.push(introContent); // Thêm phần giới thiệu vào mảng nếu có
+//     }
+//     // Cập nhật lastIndex để tiếp tục từ chương đầu tiên
+//     lastIndex = firstChapterMatch.index;
+//     let t = text.slice(lastIndex).trim();
+
+//   }
+
+//   // Tiến hành tìm và chia các chương tiếp theo
+//   while ((match = chapterRegex.exec(text)) !== null) {
+//     const chapterTitle = match[0];
+//     const chapterContent = text.slice(lastIndex, match.index).trim();
+
+//     // Thêm chương vào mảng nếu có nội dung
+//     if (chapterContent) {
+//       chapters.push(chapterTitle + '\n' + chapterContent);
+//     }
+
+//     // Cập nhật lastIndex cho vòng lặp tiếp theo
+//     lastIndex = chapterRegex.lastIndex;
+//   }
+
+//   // Xử lý chương cuối cùng (sau tiêu đề chương cuối cùng)
+//   const finalChapterContent = text.slice(lastIndex).trim();
+//   if (finalChapterContent) {
+//     chapters.push(finalChapterContent);
+//   }
+
+//   return chapters;
+// }
+
 export function splitIntoChunks(input: string, max: number = 1000): string[] {
   const chunks = [];
   let start = 0;
   while (start < input.length) {
+    console.log('run', input.length);
+
     let end = start + max;
     if (end < input.length) {
       // Tìm vị trí xuống dòng gần nhất trước max length

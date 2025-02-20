@@ -3,7 +3,6 @@
 import React, {
   ForwardedRef,
   HTMLAttributes,
-  RefObject,
   useEffect,
   useState,
 } from 'react';
@@ -80,56 +79,6 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
   const viParagraphs = splitArray(viArr, '\n');
 
   const zhParagraphs = splitArray(zhArr, '\n');
-
-  const selectWord2 = (e: React.MouseEvent<HTMLSpanElement>) => {
-    const target = e.target as HTMLElement;
-
-    // Lấy thông tin từ thuộc tính data-word
-    const zhWord = target.getAttribute('data-word-zh') || '';
-    const viWord = target.getAttribute('data-word-vi') || '';
-
-    // Lấy vị trí modal
-    const spanRect = target.getBoundingClientRect();
-    let modalTop = spanRect.bottom + window.scrollY + 10;
-    let modalLeft = spanRect.left + window.scrollX;
-
-    if (modalLeft + 300 > window.innerWidth) {
-      modalLeft = window.innerWidth - 310;
-    }
-
-    // Cập nhật trạng thái
-    setModalPosition({ top: modalTop, left: modalLeft });
-    setModalVisible(true);
-    setZhWord(zhWord);
-    setViWord(viWord);
-  };
-
-  const selectWord1 = (
-    parIndex: number,
-    wrdIndex: number,
-    e: React.MouseEvent<HTMLSpanElement>
-  ) => {
-    // open modal
-    const spanRect = (e.target as HTMLElement).getBoundingClientRect();
-    let modalTop = spanRect.bottom + window.scrollY + 10;
-    let modalLeft = spanRect.left + window.scrollX;
-
-    if (modalLeft + 300 > window.innerWidth) {
-      modalLeft = window.innerWidth - 310;
-    }
-
-    setModalPosition({ top: modalTop, left: modalLeft });
-    setModalVisible(true);
-
-    //set word
-    setZhWord(() => zhParagraphs[parIndex][wrdIndex]);
-    setViWord(() => viParagraphs[parIndex][wrdIndex]);
-
-    //set word coord
-    setCurrentParPosition(parIndex);
-    setCurrentWordPosition(wrdIndex);
-    setSelectedWordsPosition([wrdIndex]);
-  };
 
   const handleExpandWord = (b: 1 | -1) => {
     const newIndex = currentWordPosition + b;
@@ -216,18 +165,13 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
   return (
     <>
-      <article
-        ref={ref}
-        {...props}
-        className="mx-auto max-w-4xl h-max px-2 md:px-6"
-      >
-        <div
-          className="mx-auto max-w-4xl px-2
-          text-justify font-normal leading-10 md:px-16"
-        >
+      <article ref={ref} {...props} className="mx-auto h-max">
+        <div className="mx-auto text-justify font-normal leading-10">
           {viParagraphs.map((p, parIndex) => {
+            if (!p[0]) return;
+
             return (
-              <div key={parIndex} className="contents">
+              <div key={parIndex} className="contents lol">
                 <p key={parIndex}>
                   {p.map((wordRaw, wrdIndex) => {
                     const isHighlight =
