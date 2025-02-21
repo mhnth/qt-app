@@ -166,7 +166,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
   return (
     <>
       <article ref={ref} {...props} className="mx-auto h-max">
-        <div className="mx-auto text-justify font-normal leading-10">
+        <div className="mx-auto text-justify leading-10">
           {viParagraphs.map((p, parIndex) => {
             if (!p[0]) return;
 

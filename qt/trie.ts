@@ -55,6 +55,44 @@ export class Trie {
 
     return [longestPrefix, longestValue];
   }
+
+  delete(word: string): boolean {
+    const deleteHelper = (
+      node: TrieNode,
+      word: string,
+      index: number
+    ): boolean => {
+      if (index === word.length) {
+        // If we're at the end of the word, mark it as not an end of a word
+        if (!node.isEndOfWord) {
+          return false; // Word doesn't exist
+        }
+        node.isEndOfWord = false;
+        this.wordCount -= 1;
+        return node.children.size === 0; // If no children, we can delete this node
+      }
+
+      const char = word[index];
+      const childNode = node.children.get(char);
+      if (!childNode) {
+        return false; // Word doesn't exist
+      }
+
+      const shouldDeleteChild = deleteHelper(childNode, word, index + 1);
+
+      if (shouldDeleteChild) {
+        // We don't delete the node if it's part of another word (has children)
+        if (childNode.children.size === 0) {
+          node.children.delete(char); // If the child has no children, remove it
+        }
+        return node.children.size === 0 && !node.isEndOfWord; // Can we delete the current node?
+      }
+
+      return false;
+    };
+
+    return deleteHelper(this.root, word, 0);
+  }
 }
 
 export class ReverseTrie extends Trie {

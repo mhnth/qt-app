@@ -6,7 +6,7 @@ import {
   setItemLocalStorage,
 } from '@/lib/utils';
 import { hanviet } from './hanviet';
-import { ReverseTrie, Trie } from './trie';
+import { ReverseTrie } from './trie';
 import { clearDB } from './useIndexedDB';
 import { getZhViPairs, translateZhToVi } from './utils';
 
@@ -235,5 +235,27 @@ export class QTManager {
 
     await this.loadDictionary();
     this.loading = false;
+  }
+
+  deleteWord(word: string) {
+    word = [...word].reverse().join('');
+    this.trieVietPhrase?.delete(word);
+
+    const isExistInLocalDict = this.personalDict?.delete(word);
+
+    if (isExistInLocalDict) {
+      // delete word in localStorage
+      const existingDictData = getItemLocalStorage(PERSON_DICT_KEY) || [];
+
+      const updatedDictData = existingDictData.filter(
+        ([key]: [string]) => key !== word
+      );
+
+      setItemLocalStorage(PERSON_DICT_KEY, updatedDictData);
+
+      const newPersonDictionary = new ReverseTrie();
+      newPersonDictionary.batchInsert(updatedDictData);
+      this.personalDict = newPersonDictionary;
+    }
   }
 }

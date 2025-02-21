@@ -71,10 +71,10 @@ export default function TranslatePage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl text-white min-h-screen">
+    <div className="mx-auto max-w-4xl text-neutral-300 min-h-screen">
       <div
         className="w-full flex flex-col bg-neutral-800 
-                   px-6 bg-opacity-60 shadow-md h-[calc(100vh-48px)]"
+                   px-6 bg-opacity-75 shadow-md h-[calc(100vh-48px)]"
       >
         <div className="h-max">
           <div className="flex justify-between">

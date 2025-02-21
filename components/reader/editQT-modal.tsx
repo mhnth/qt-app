@@ -25,7 +25,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
 }) => {
   const [chineseWord, setChineseWord] = useState(zhWord);
   const [vietnameseWord, setVietNameseWord] = useState(viWord);
-  const { addToPersonalDictionary } = useQT();
+  const { addToPersonalDictionary, deleteWord } = useQT();
 
   useEffect(() => {
     setChineseWord(zhWord);
@@ -165,6 +165,15 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
 
               {/* submit bts */}
               <div className="mr-2 mt-6 flex justify-end">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    deleteWord(chineseWord);
+                    closeModal();
+                  }}
+                >
+                  Xóa
+                </button>
                 <button
                   type="submit"
                   className="ml-auto bg-sky-700 p-2 text-white"

@@ -23,6 +23,7 @@ interface QTContextInterface {
   addToPersonalDictionary: ({ zh, vi }: { zh: string; vi: string }) => void;
   getPersonalDictionary: () => [zh: string, vi: string][];
   updatePersonalDictionary: (newDict: [string, string][]) => void;
+  deleteWord: (word: string) => void;
 }
 
 const QTContext = createContext<QTContextInterface | undefined>(undefined);
@@ -85,6 +86,7 @@ export const QTProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           contextManager.getPersonalDictionary.bind(contextManager),
         updatePersonalDictionary:
           contextManager.updatePersonalDictionary.bind(contextManager),
+        deleteWord: contextManager.deleteWord.bind(contextManager),
       }}
     >
       {children}
