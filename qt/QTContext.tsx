@@ -7,7 +7,7 @@ import {
   useContext,
   createContext,
 } from 'react';
-import { clearDB, useIndexedDB } from './useIndexedDB';
+import { useIndexedDB } from './useIndexedDB';
 import { QTManager } from './QT-manager';
 
 interface QTContextInterface {

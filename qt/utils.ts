@@ -5,6 +5,7 @@ export function getZhViPairs(
   trieNames: ReverseTrie,
   trieVietPhrase: ReverseTrie,
   chinesePhienAm: { [key: string]: string },
+  simpleWord: { [key: string]: string },
   personDict?: ReverseTrie
 ): { zh: string; vi: string }[] {
   text = [...replaceSpecialChars(text)].reverse().join('');
@@ -63,7 +64,7 @@ export function getZhViPairs(
         // char !== '地'
         1
       ) {
-        const fallbackValue = chinesePhienAm[char] || char;
+        const fallbackValue = simpleWord[char] || chinesePhienAm[char] || char;
         tokens.push({
           // vi: fallbackValue.charAt(0).toUpperCase() + fallbackValue.slice(1),
           vi: fallbackValue,
