@@ -10,7 +10,6 @@ import { ReverseTrie } from './trie';
 import { clearDB } from './useIndexedDB';
 import { getZhViPairs, translateZhToVi } from './utils';
 import { getAllWords } from '@/lib/api';
-import { simpleWord } from './tudon';
 
 const PERSON_DICT_KEY = 'person_dict';
 
@@ -19,7 +18,7 @@ export class QTManager {
   private trieNames: ReverseTrie | undefined;
   private trieVietPhrase: ReverseTrie | undefined;
   private chinesePhienAm: any;
-  private simpleWord: any;
+  // private simpleWord: any;
   private personalDict: ReverseTrie | undefined;
 
   constructor(
@@ -30,7 +29,6 @@ export class QTManager {
     private loadData: (fileName: string) => Promise<[string, string][]>
   ) {
     this.chinesePhienAm = hanviet; // Default value
-    this.simpleWord = simpleWord;
   }
 
   async loadFile(fileName: 'Names' | 'VietPhrase', trie: ReverseTrie) {
@@ -59,21 +57,46 @@ export class QTManager {
           ]);
 
           data = data1 + '\n' + data2;
-        } else {
-          const data = await getAllWords();
 
-          entries = (data as any).map((row: any) => {
+          entries = data
+            .split('\n')
+            .map((line) => {
+              const [key, value] = line.trim().split('=');
+              return key && value ? [key, value] : null;
+            })
+            .filter((entry) => entry !== null) as [string, string][];
+
+          await this.saveData(fileName, entries);
+        } else {
+          const [data1, res2] = await Promise.all([
+            await getAllWords(),
+            await fetch(`https://catnipzz.github.io/simpleWord.txt`, {
+              cache: 'no-store',
+            }),
+          ]);
+
+          const data2 = await res2.text();
+
+          const entries1 = data2
+            .split('\n')
+            .map((line) => {
+              const [key, value] = line.trim().split('=');
+              return key && value ? [key, value] : null;
+            })
+            .filter((entry) => entry !== null) as [string, string][];
+
+          const entries2 = (data1 as any).map((row: any) => {
             const { zh: key, vi: value } = row;
             return key && value ? [key, value] : null;
           });
+
+          entries = entries1.concat(entries2);
         }
 
         await this.saveData(fileName, entries);
         console.log(
           `Loaded and cached ${entries.length} entries from ${fileName}`
         );
-
-        // return entries;
       } catch (err) {
         console.warn(`${fileName} not found. Proceeding without data.`);
       }
@@ -90,7 +113,6 @@ export class QTManager {
         this.trieNames,
         this.trieVietPhrase,
         this.chinesePhienAm,
-        this.simpleWord,
         this.personalDict
       );
 
