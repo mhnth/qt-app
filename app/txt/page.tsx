@@ -114,7 +114,11 @@ export default function ReadingPage() {
                         <div className="info my-4 space-x-2 text-sm text-slate-400">
                           <span>
                             Tựa gốc:{' '}
-                            {outputFileName.split('-')[1].replace('.txt', '')}
+                            {(outputFileName &&
+                              outputFileName
+                                ?.split('-')[1]
+                                .replace('.txt', '')) ||
+                              ''}
                           </span>
                           <span>Updated on February 17, 2025</span>
                           <span>19,034 character(s)</span>
