@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 
 import { Virtuoso } from 'react-virtuoso';
 
-export default function TranslatePage() {
+export default function ReadingPage() {
   const { translateQT } = useQT();
   const [inputTxt, setInputTxt] = useState('');
   const [outputFileName, setOutputFileName] = useState('');
@@ -81,13 +81,13 @@ export default function TranslatePage() {
             style={{ height: '100%' }}
             totalCount={textParts.length + 1}
             itemContent={(index) => (
-              <div className="virtuoso-scroller border-b border-slate-500">
+              <div className="virtuoso-scroller border-b border-slate-500 py-8">
                 {index === 0 ? (
                   <>
                     <div className="flex justify-end">
                       <Link href={'/'}>Home</Link>
                     </div>
-                    <div className="flex space-x-4 py-4">
+                    <div className="flex flex-col items-center space-x-4 py-4 md:flex-row md:items-start md:space-x-6 md:pr-12">
                       <div className="flex-shrink-0">
                         <img
                           className="h-40 w-28 rounded-md object-cover"
@@ -95,11 +95,11 @@ export default function TranslatePage() {
                           alt=""
                         />
                       </div>
-                      <article>
+                      <article className="mt-6 md:mt-0">
                         <h1 className="text-white">
                           {outputFileName?.split('-')[0] || 'Tên sách'}
                         </h1>
-                        <p className="my-2 font-light text-slate-200">
+                        <p className="my-2 text-sm font-light text-slate-200">
                           Lorem ipsum dolor sit, amet consectetur adipisicing
                           elit. Placeat ad itaque iusto aliquam magni sunt porro
                           cupiditate deleniti. Ad eligendi molestiae !
@@ -119,7 +119,7 @@ export default function TranslatePage() {
                           <span>Updated on February 17, 2025</span>
                           <span>19,034 character(s)</span>
                         </div>
-                        <div className="my-4 flex items-center gap-8 px-4">
+                        <div className="mx-auto my-8 mb-2 flex w-max items-center gap-8 px-4 md:mx-0">
                           <label
                             htmlFor="file-upload"
                             className="cursor-pointer"
