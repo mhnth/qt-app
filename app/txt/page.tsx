@@ -97,7 +97,8 @@ export default function ReadingPage() {
                       </div>
                       <article className="mt-6 md:mt-0">
                         <h1 className="text-white">
-                          {outputFileName?.split('-')[0] || 'Tên sách'}
+                          {(outputFileName && outputFileName?.split('-')[0]) ||
+                            'Tên sách'}
                         </h1>
                         <p className="my-2 text-sm font-light text-slate-200">
                           Lorem ipsum dolor sit, amet consectetur adipisicing
