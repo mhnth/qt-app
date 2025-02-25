@@ -9,7 +9,6 @@ import { hanviet } from './hanviet';
 import { ReverseTrie } from './trie';
 import { clearDB } from './useIndexedDB';
 import { getZhViPairs, translateZhToVi } from './utils';
-import { getAllWords } from '@/lib/api';
 
 const PERSON_DICT_KEY = 'person_dict';
 
@@ -18,7 +17,6 @@ export class QTManager {
   private trieNames: ReverseTrie | undefined;
   private trieVietPhrase: ReverseTrie | undefined;
   private chinesePhienAm: any;
-  // private simpleWord: any;
   private personalDict: ReverseTrie | undefined;
 
   constructor(
@@ -38,60 +36,34 @@ export class QTManager {
 
     if (entries.length === 0) {
       try {
+        console.log('run new');
+
         const [fileName1, fileName2] =
-          fileName === 'Names' ? ['Names', 'Names2'] : ['VietPhrase', 'VP2'];
+          fileName === 'Names' ? ['Names', 'Names2'] : ['VP', 'VP2'];
 
-        if (fileName === 'Names') {
-          const [res1, res2] = await Promise.all([
-            await fetch(`https://catnipzz.github.io/${fileName1}.txt`, {
-              cache: 'no-store',
-            }),
-            await fetch(`https://catnipzz.github.io/${fileName2}.txt`, {
-              cache: 'no-store',
-            }),
-          ]);
+        const [res1, res2] = await Promise.all([
+          await fetch(`/api/dict/name`, {
+            cache: 'no-store',
+          }),
+          await fetch(`/api/dict/vp`, {
+            cache: 'no-store',
+          }),
+        ]);
 
-          const [data1, data2] = await Promise.all([
-            await res1.text(),
-            await res2.text(),
-          ]);
+        const [data1, data2] = await Promise.all([
+          await res1.text(),
+          await res2.text(),
+        ]);
 
-          data = data1 + '\n' + data2;
+        data = data1 + '\n' + data2;
 
-          entries = data
-            .split('\n')
-            .map((line) => {
-              const [key, value] = line.trim().split('=');
-              return key && value ? [key, value] : null;
-            })
-            .filter((entry) => entry !== null) as [string, string][];
-
-          await this.saveData(fileName, entries);
-        } else {
-          const [data1, res2] = await Promise.all([
-            await getAllWords(),
-            await fetch(`https://catnipzz.github.io/simpleWord.txt`, {
-              cache: 'no-store',
-            }),
-          ]);
-
-          const data2 = await res2.text();
-
-          const entries1 = data2
-            .split('\n')
-            .map((line) => {
-              const [key, value] = line.trim().split('=');
-              return key && value ? [key, value] : null;
-            })
-            .filter((entry) => entry !== null) as [string, string][];
-
-          const entries2 = (data1 as any).map((row: any) => {
-            const { zh: key, vi: value } = row;
+        entries = data
+          .split('\n')
+          .map((line) => {
+            const [key, value] = line.trim().split('=');
             return key && value ? [key, value] : null;
-          });
-
-          entries = entries1.concat(entries2);
-        }
+          })
+          .filter((entry) => entry !== null) as [string, string][];
 
         await this.saveData(fileName, entries);
         console.log(
@@ -178,8 +150,6 @@ export class QTManager {
       this.personalDict = personDict;
     }
 
-    // const [names, vietPhrase] = [new ReverseTrie(), new ReverseTrie()];
-
     [this.trieNames, this.trieVietPhrase] = [
       new ReverseTrie(),
       new ReverseTrie(),
@@ -189,9 +159,6 @@ export class QTManager {
       this.loadFile('Names', this.trieNames),
       this.loadFile('VietPhrase', this.trieVietPhrase),
     ]);
-
-    // this.trieNames = names;
-    // this.trieVietPhrase = vietPhrase;
 
     this.loading = false;
   }

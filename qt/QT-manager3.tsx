@@ -9,6 +9,7 @@ import { hanviet } from './hanviet';
 import { ReverseTrie } from './trie';
 import { clearDB } from './useIndexedDB';
 import { getZhViPairs, translateZhToVi } from './utils';
+import { getAllWords } from '@/lib/api';
 
 const PERSON_DICT_KEY = 'person_dict';
 
@@ -17,6 +18,7 @@ export class QTManager {
   private trieNames: ReverseTrie | undefined;
   private trieVietPhrase: ReverseTrie | undefined;
   private chinesePhienAm: any;
+  // private simpleWord: any;
   private personalDict: ReverseTrie | undefined;
 
   constructor(
@@ -35,10 +37,6 @@ export class QTManager {
     let data = '';
 
     if (entries.length === 0) {
-      console.log('load new dick');
-
-      fetch('/api/dict');
-
       try {
         const [fileName1, fileName2] =
           fileName === 'Names' ? ['Names', 'Names2'] : ['VietPhrase', 'VP2'];
@@ -59,75 +57,46 @@ export class QTManager {
           ]);
 
           data = data1 + '\n' + data2;
+
+          entries = data
+            .split('\n')
+            .map((line) => {
+              const [key, value] = line.trim().split('=');
+              return key && value ? [key, value] : null;
+            })
+            .filter((entry) => entry !== null) as [string, string][];
+
+          await this.saveData(fileName, entries);
         } else {
-          const [
-            res1,
-            res2,
-            //  res3, res4, res5
-          ] = await Promise.all([
-            await fetch(`https://catnipzz.github.io/VP1.txt`, {
+          const [data1, res2] = await Promise.all([
+            await getAllWords(),
+            await fetch(`https://catnipzz.github.io/simpleWord.txt`, {
               cache: 'no-store',
             }),
-            await fetch(`https://catnipzz.github.io/VP10.txt`, {
-              cache: 'no-store',
-            }),
-            // await fetch(`https://catnipzz.github.io/VP3.txt`, {
-            //   cache: 'no-store',
-            // }),
-            // await fetch(`https://catnipzz.github.io/VP4.txt`, {
-            //   cache: 'no-store',
-            // }),
-            // await fetch(`https://catnipzz.github.io/VP5.txt`, {
-            //   cache: 'no-store',
-            // }),
           ]);
 
-          const [
-            data1,
-            data2,
-            // data3, data4, data5
-          ] = await Promise.all([
-            await res1.text(),
-            await res2.text(),
-            // await res3.text(),
-            // await res4.text(),
-            // await res5.text(),
-          ]);
+          const data2 = await res2.text();
 
-          data = data1 + '\n' + data2 + '\n';
-          // + data3 + '\n' + data4 + '\n' + data5;
-        }
+          const entries1 = data2
+            .split('\n')
+            .map((line) => {
+              const [key, value] = line.trim().split('=');
+              return key && value ? [key, value] : null;
+            })
+            .filter((entry) => entry !== null) as [string, string][];
 
-        // const [res1, res2] = await Promise.all([
-        //   await fetch(`https://catnipzz.github.io/${fileName1}.txt`, {
-        //     cache: 'no-store',
-        //   }),
-        //   await fetch(`https://catnipzz.github.io/${fileName2}.txt`, {
-        //     cache: 'no-store',
-        //   }),
-        // ]);
-
-        // const [data1, data2] = await Promise.all([
-        //   await res1.text(),
-        //   await res2.text(),
-        // ]);
-
-        // data = data1 + '\n' + data2;
-
-        entries = data
-          .split('\n')
-          .map((line) => {
-            const [key, value] = line.trim().split('=');
+          const entries2 = (data1 as any).map((row: any) => {
+            const { zh: key, vi: value } = row;
             return key && value ? [key, value] : null;
-          })
-          .filter((entry) => entry !== null) as [string, string][];
+          });
+
+          entries = entries1.concat(entries2);
+        }
 
         await this.saveData(fileName, entries);
         console.log(
           `Loaded and cached ${entries.length} entries from ${fileName}`
         );
-
-        // return entries;
       } catch (err) {
         console.warn(`${fileName} not found. Proceeding without data.`);
       }

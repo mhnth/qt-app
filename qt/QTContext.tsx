@@ -1,5 +1,5 @@
 'use client';
-
+import d from '@/lib/doublearray.js';
 import {
   ReactNode,
   useState,
@@ -32,6 +32,8 @@ export const QTProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { saveData, loadData } = useIndexedDB();
   const [contextManager, setContextManager] = useState<QTManager | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [vp, setVP] = useState(null);
 
   useEffect(() => {
     const manager = new QTManager(saveData, loadData);
