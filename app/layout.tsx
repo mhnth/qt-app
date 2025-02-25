@@ -28,11 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`text-base bg-[url(https://images.unsplash.com/photo-1486707471592-8e7eb7e36f78?q=80&w=1994&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)] bg-cover min-h-screen`}
+        className={`min-h-screen bg-slate-200 bg-[url(/assets/images/mountain.avif)] bg-cover bg-center bg-no-repeat bg-blend-multiply`}
       >
         <QTProvider>
-          <main>{children}</main>
-          <div className="fixed bottom-0 h-12 bg-black/55 w-full flex justify-center items-center">
+          <main className="no-scrollbar h-screen overflow-y-scroll">
+            {children}
+          </main>
+          {/* <div className="fixed bottom-0 h-12 bg-black/55 w-full flex justify-center items-center">
             <div className="w-max max-w-md text-xs flex justify-between space-x-16 px-8">
               <Link className="flex items-center flex-col" href={'/trans'}>
                 <ILanguage className="fill-white h-5" />
@@ -47,7 +49,7 @@ export default function RootLayout({
                 Dict
               </Link>
             </div>
-          </div>
+          </div> */}
         </QTProvider>
       </body>
     </html>

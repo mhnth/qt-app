@@ -4,6 +4,7 @@ import { ICopy, IDelete, IUpload } from '@/components/icons';
 import { Reader } from '@/components/reader/reader';
 import { splitIntoChapters } from '@/lib/utils';
 import { useQT } from '@/qt/QTContext';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { Virtuoso } from 'react-virtuoso';
@@ -71,52 +72,99 @@ export default function TranslatePage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl text-neutral-300 min-h-screen">
-      <div
-        className="w-full flex flex-col bg-neutral-800 
-                   px-6 bg-opacity-75 shadow-md h-[calc(100vh-48px)]"
-      >
-        <div className="h-max">
-          <div className="flex justify-between">
-            <div className="flex items-center gap-8 px-4">
-              <label htmlFor="file-upload" className="cursor-pointer">
-                <IUpload className="w-5 fill-neutral-300" />
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                accept=".txt"
-                className="hidden"
-                onChange={handleUpload}
-              />
-              <button onClick={handleDel}>
-                <IDelete className="w-5 fill-neutral-300" />
-              </button>
-              <button onClick={handleCopy}>
-                <ICopy className="w-4 fill-neutral-300" />
-              </button>
-              <button onClick={handleDownload}>download</button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 h-full px-4 md:px-12">
+    <div className="mx-auto min-h-screen max-w-4xl text-slate-100">
+      <section className="flex h-screen w-full flex-col bg-slate-900/70 px-6 shadow-md">
+        <div className="mt-2 h-full px-4 md:px-12">
           <Virtuoso
             id="virtuoso-container"
             className="no-scrollbar"
             style={{ height: '100%' }}
-            totalCount={textParts.length}
+            totalCount={textParts.length + 1}
             itemContent={(index) => (
-              <div
-                className="virtuoso-scroller py-4 border-b border-neutral-400" // Đảm bảo phần tử container có class này
-              >
-                <Reader rawText={textParts[index]} />
+              <div className="virtuoso-scroller border-b border-slate-500">
+                {index === 0 ? (
+                  <>
+                    <div className="flex justify-end">
+                      <Link href={'/'}>Home</Link>
+                    </div>
+                    <div className="flex space-x-4 py-4">
+                      <div className="flex-shrink-0">
+                        <img
+                          className="h-40 w-28 rounded-md object-cover"
+                          src="https://news.khangz.com/wp-content/uploads/2024/12/Chill-guy-la-gi-750x450.jpg"
+                          alt=""
+                        />
+                      </div>
+                      <article>
+                        <h1 className="text-white">
+                          {outputFileName?.split('-')[0] || 'Tên sách'}
+                        </h1>
+                        <p className="my-2 font-light text-slate-200">
+                          Lorem ipsum dolor sit, amet consectetur adipisicing
+                          elit. Placeat ad itaque iusto aliquam magni sunt porro
+                          cupiditate deleniti. Ad eligendi molestiae !
+                        </p>
+                        <div className="font-light text-sky-300">
+                          <ul className="flex gap-2">
+                            <li>#pure love</li>
+                            <li>#h</li>
+                            <li>#mother</li>
+                          </ul>
+                        </div>
+                        <div className="info my-4 space-x-2 text-sm text-slate-400">
+                          <span>
+                            Tựa gốc:{' '}
+                            {outputFileName.split('-')[1].replace('.txt', '')}
+                          </span>
+                          <span>Updated on February 17, 2025</span>
+                          <span>19,034 character(s)</span>
+                        </div>
+                        <div className="my-4 flex items-center gap-8 px-4">
+                          <label
+                            htmlFor="file-upload"
+                            className="cursor-pointer"
+                          >
+                            <IUpload className="w-5 fill-neutral-300" />
+                          </label>
+                          <input
+                            id="file-upload"
+                            type="file"
+                            accept=".txt"
+                            className="hidden"
+                            onChange={handleUpload}
+                          />
+                          <button onClick={handleDel}>
+                            <IDelete className="w-5 fill-neutral-300" />
+                          </button>
+                          <button onClick={handleCopy}>
+                            <ICopy className="w-4 fill-neutral-300" />
+                          </button>
+                          <button
+                            className="rounded-md bg-sky-700 px-4 py-1 hover:bg-sky-300"
+                            onClick={handleDownload}
+                          >
+                            download
+                          </button>
+                        </div>
+                      </article>
+                    </div>
+                  </>
+                ) : (
+                  <Reader rawText={textParts[index - 1]} />
+                )}
               </div>
             )}
+            // itemContent={(index) => (
+            //   <div
+            //     className="virtuoso-scroller py-4 border-b border-neutral-400" // Đảm bảo phần tử container có class này
+            //   >
+            //     <Reader rawText={textParts[index]} />
+            //   </div>
+            // )}
             increaseViewportBy={300}
           />
         </div>
-      </div>
+      </section>
     </div>
   );
 }

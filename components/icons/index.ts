@@ -22,3 +22,4 @@ export * from './bookmarked';
 export * from './download';
 export * from './upload';
 export * from './reload';
+export * from './plus';
