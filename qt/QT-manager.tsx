@@ -22,40 +22,25 @@ export class QTManager {
   constructor(
     private saveData: (
       fileName: string,
-      entries: [string, string][]
+      entries: [string, string][],
     ) => Promise<void>,
-    private loadData: (fileName: string) => Promise<[string, string][]>
+    private loadData: (fileName: string) => Promise<[string, string][]>,
   ) {
     this.chinesePhienAm = hanviet; // Default value
   }
 
-  async loadFile(fileName: 'Names' | 'VietPhrase', trie: ReverseTrie) {
+  async loadFile(fileName: 'name' | 'vp', trie: ReverseTrie) {
     let entries: [string, string][] = (await this.loadData(fileName)) || [];
 
     let data = '';
 
     if (entries.length === 0) {
       try {
-        console.log('run new');
+        const res = await fetch(`/api/dict/${fileName}`, {
+          cache: 'no-store',
+        });
 
-        const [fileName1, fileName2] =
-          fileName === 'Names' ? ['Names', 'Names2'] : ['VP', 'VP2'];
-
-        const [res1, res2] = await Promise.all([
-          await fetch(`/api/dict/name`, {
-            cache: 'no-store',
-          }),
-          await fetch(`/api/dict/vp`, {
-            cache: 'no-store',
-          }),
-        ]);
-
-        const [data1, data2] = await Promise.all([
-          await res1.text(),
-          await res2.text(),
-        ]);
-
-        data = data1 + '\n' + data2;
+        data = await res.text();
 
         entries = data
           .split('\n')
@@ -67,7 +52,7 @@ export class QTManager {
 
         await this.saveData(fileName, entries);
         console.log(
-          `Loaded and cached ${entries.length} entries from ${fileName}`
+          `Loaded and cached ${entries.length} entries from ${fileName}`,
         );
       } catch (err) {
         console.warn(`${fileName} not found. Proceeding without data.`);
@@ -85,7 +70,7 @@ export class QTManager {
         this.trieNames,
         this.trieVietPhrase,
         this.chinesePhienAm,
-        this.personalDict
+        this.personalDict,
       );
 
       return {
@@ -102,7 +87,7 @@ export class QTManager {
         this.trieNames,
         this.trieVietPhrase,
         this.chinesePhienAm,
-        hv
+        hv,
       );
 
       return formatTxt(tokens);
@@ -113,7 +98,7 @@ export class QTManager {
     const existingDictData = getItemLocalStorage(PERSON_DICT_KEY) || [];
 
     const updatedDictData = existingDictData.filter(
-      ([key]: [string]) => key !== zh
+      ([key]: [string]) => key !== zh,
     );
 
     updatedDictData.push([zh, vi]);
@@ -156,8 +141,8 @@ export class QTManager {
     ];
 
     await Promise.all([
-      this.loadFile('Names', this.trieNames),
-      this.loadFile('VietPhrase', this.trieVietPhrase),
+      this.loadFile('name', this.trieNames),
+      this.loadFile('vp', this.trieVietPhrase),
     ]);
 
     this.loading = false;
@@ -177,7 +162,8 @@ export class QTManager {
 
   deleteWord(word: string) {
     word = [...word].reverse().join('');
-    this.trieVietPhrase?.delete(word);
+    const t = this.trieVietPhrase?.delete(word);
+    console.log('-----', t, word);
 
     const isExistInLocalDict = this.personalDict?.delete(word);
 
@@ -186,7 +172,7 @@ export class QTManager {
       const existingDictData = getItemLocalStorage(PERSON_DICT_KEY) || [];
 
       const updatedDictData = existingDictData.filter(
-        ([key]: [string]) => key !== word
+        ([key]: [string]) => key !== word,
       );
 
       setItemLocalStorage(PERSON_DICT_KEY, updatedDictData);

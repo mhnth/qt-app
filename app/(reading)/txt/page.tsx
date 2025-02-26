@@ -2,32 +2,47 @@
 
 import { ICopy, IDelete, IUpload } from '@/components/icons';
 import { Reader } from '@/components/reader/reader';
+import { useReader } from '@/hooks/ui-context';
 import { splitIntoChapters } from '@/lib/utils';
 import { useQT } from '@/qt/QTContext';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { Virtuoso } from 'react-virtuoso';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 export default function ReadingPage() {
   const { translateQT } = useQT();
   const [inputTxt, setInputTxt] = useState('');
   const [outputFileName, setOutputFileName] = useState('');
   const [textParts, setTextParts] = useState<string[]>([]);
+  const { preferences, setChapterList } = useReader();
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
+
+  useEffect(() => {
+    console.log('runn ne');
+
+    virtuosoRef.current?.scrollToIndex({
+      index: preferences.currentChapter || 0,
+      align: 'start',
+    });
+  }, [preferences.currentChapter]);
 
   useEffect(() => {
     const savedInputTxt = sessionStorage.getItem('inputTxt');
     const savedOutputFileName = sessionStorage.getItem('outputFileName');
     if (savedInputTxt) setInputTxt(savedInputTxt);
     if (savedOutputFileName) setOutputFileName(savedOutputFileName);
-  }, []);
+  }, [preferences.currentChapter]);
 
   useEffect(() => {
     // sessionStorage.setItem('inputTxt', inputTxt);
     sessionStorage.setItem('outputFileName', outputFileName);
 
-    const textChunks = splitIntoChapters(inputTxt);
+    const [textChunks, chapterTitles] = splitIntoChapters(inputTxt);
+    //translate chapter titles
+    const transTitles = translateQT(chapterTitles.join('000'), false);
     setTextParts(inputTxt ? textChunks || [] : []);
+    setChapterList(transTitles?.split('000') || chapterTitles);
   }, [inputTxt, outputFileName]);
 
   const handleDel = () => {
@@ -76,9 +91,11 @@ export default function ReadingPage() {
       <section className="flex h-screen w-full flex-col bg-slate-900/70 px-6 shadow-md">
         <div className="mt-2 h-full px-4 md:px-12">
           <Virtuoso
+            ref={virtuosoRef}
             id="virtuoso-container"
             className="no-scrollbar"
             style={{ height: '100%' }}
+            // initialTopMostItemIndex={preferences.currentChapter || 0}
             totalCount={textParts.length + 1}
             itemContent={(index) => (
               <div className="virtuoso-scroller border-b border-slate-500 py-8">
@@ -87,7 +104,10 @@ export default function ReadingPage() {
                     <div className="flex justify-end">
                       <Link href={'/'}>Home</Link>
                     </div>
-                    <div className="flex flex-col items-center space-x-4 py-4 md:flex-row md:items-start md:space-x-6 md:pr-12">
+                    <div
+                      className="flex flex-col items-center space-x-4 py-4 
+                                 md:flex-row md:items-start md:space-x-6 md:pr-12"
+                    >
                       <div className="flex-shrink-0">
                         <img
                           className="h-40 w-28 rounded-md object-cover"

@@ -2,13 +2,16 @@ import { DICT_URL } from '@/lib/server/env-server';
 
 export async function GET() {
   try {
-    const response = await fetch(`${DICT_URL}/Names.txt`);
+    const [res_1, res_2] = await Promise.all([
+      await fetch(`${DICT_URL}/Names.txt`),
+      await fetch(`${DICT_URL}/Names2.txt`),
+    ]);
 
-    if (!response.ok) {
+    if (!res_1.ok || !res_2.ok) {
       throw new Error('Failed to fetch data from the third-party API');
     }
 
-    const textData = await response.text();
+    const textData = (await res_1.text()) + '\n' + (await res_2.text());
 
     return new Response(textData, {
       status: 200,

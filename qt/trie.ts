@@ -60,7 +60,7 @@ export class Trie {
     const deleteHelper = (
       node: TrieNode,
       word: string,
-      index: number
+      index: number,
     ): boolean => {
       if (index === word.length) {
         // If we're at the end of the word, mark it as not an end of a word

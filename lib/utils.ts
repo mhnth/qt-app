@@ -38,7 +38,7 @@ export function formDataToObject<T>(formData: FormData) {
 export const truncateStr = (
   input: string,
   max: number,
-  dot: boolean = false
+  dot: boolean = false,
 ): string => {
   if (input.length > max && dot) {
     return `${input.substring(0, max)}...`;
@@ -68,7 +68,7 @@ export const formatTxt1 = (text: string) => {
     .replace(/([<\[(“‘{]) +/g, ' $1')
     .replace(
       /(^\s*|[“‘”’.!?\[-]\s*)(\p{Ll})/gmu,
-      (_, p1, p2) => p1 + p2.toUpperCase()
+      (_, p1, p2) => p1 + p2.toUpperCase(),
     )
     .replace(/ +/g, ' ')
     .replace('「', ' "') // Thay dấu mở 「 bằng dấu "
@@ -91,7 +91,7 @@ export const formatTxt = (text: string) => {
     .replace(/([<\[(“‘{]) +/g, ' $1') // Loại bỏ khoảng trắng dư thừa sau các dấu mở ngoặc
     .replace(
       /(^\s*|[“‘”’.!?\[-]\s*)(\p{Ll})/gmu,
-      (_, p1, p2) => p1 + p2.toUpperCase()
+      (_, p1, p2) => p1 + p2.toUpperCase(),
     ) // Viết hoa chữ cái đầu sau dấu câu
     .replace(/ +/g, ' ') // Loại bỏ khoảng trắng dư thừa
     .replace('「', ' "') // Thay dấu mở 「 bằng dấu "
@@ -195,7 +195,7 @@ export const getItemLocalStorage = (key: string) => {
 
 // chia chương và lưu danh sách chương vào localStorage
 
-export function splitIntoChapters(text: string, max = 20000) {
+export function splitIntoChapters_(text: string, max = 20000) {
   const chapterRegex = /第[一二三四五六七八九十0-9]+章[:：]?[^\n]*/g;
   const chapters = [];
   const chapterTitles = [];
@@ -210,7 +210,8 @@ export function splitIntoChapters(text: string, max = 20000) {
     const chapterContent = text.slice(lastIndex, match.index).trim();
 
     if (!prevTitle && lastIndex === 0 && chapterContent) {
-      chapters.push('-----MeVV-----\n' + chapterContent);
+      chapters.push(chapterContent);
+      chapterTitles.unshift('intro');
     }
 
     if (prevTitle && chapterContent) {
@@ -227,10 +228,155 @@ export function splitIntoChapters(text: string, max = 20000) {
   }
 
   // ✅ Lưu danh sách tiêu đề chương vào localStorage
-  localStorage.setItem('chapterTitles', JSON.stringify(chapterTitles));
+  // localStorage.setItem('chapterTitles', JSON.stringify(chapterTitles));
 
-  return chapters;
+  return [chapters, chapterTitles];
 }
+
+export function splitIntoChapters(text: string, max = 20000, subMax = 10000) {
+  const chapterRegex = /第[一二三四五六七八九十零百千万两0-9]+章[:：]?[^\n]*/g;
+  const chapters: string[] = [];
+  const chapterTitles: string[] = [];
+  let match;
+  let lastIndex = 0;
+  let prevTitle: string | null = null;
+
+  while ((match = chapterRegex.exec(text)) !== null) {
+    const chapterTitle = match[0];
+    chapterTitles.push(chapterTitle);
+
+    let chapterContent = text.slice(lastIndex, match.index).trim();
+    if (!prevTitle && lastIndex === 0 && chapterContent) {
+      chapters.push(chapterContent);
+      chapterTitles.unshift('intro');
+    }
+
+    if (prevTitle && chapterContent) {
+      if (chapterContent.length > max) {
+        splitLongChapter(
+          prevTitle + '\n' + chapterContent,
+          subMax,
+          chapters,
+          chapterTitles,
+        );
+      } else {
+        chapters.push(prevTitle + '\n' + chapterContent);
+      }
+    }
+
+    prevTitle = chapterTitle;
+    lastIndex = chapterRegex.lastIndex;
+  }
+
+  const finalChapterContent = text.slice(lastIndex).trim();
+  if (finalChapterContent && prevTitle) {
+    if (finalChapterContent.length > max) {
+      splitLongChapter(
+        prevTitle + '\n' + finalChapterContent,
+        subMax,
+        chapters,
+        chapterTitles,
+      );
+    } else {
+      chapters.push(prevTitle + '\n' + finalChapterContent);
+    }
+  }
+
+  // ❌ Nếu không có chương, chia nhỏ text
+  if (chapters.length === 0) {
+    splitLongChapter(text, max, chapters, chapterTitles, 'Phần');
+  }
+
+  return [chapters, chapterTitles];
+}
+
+/**
+ * Chia nhỏ chương nếu dài hơn `limit`, giữ đoạn hoàn chỉnh.
+ * Nếu chương có tiêu đề, các phần nhỏ sẽ có tiêu đề tương tự.
+ */
+function splitLongChapter(
+  chapterText: string,
+  limit: number,
+  chapters: string[],
+  chapterTitles: string[],
+  prefix: string = '',
+) {
+  let start = 0;
+  let partIndex = 1;
+  while (start < chapterText.length) {
+    let end = start + limit;
+
+    if (end < chapterText.length) {
+      const searchLimit = Math.max(start, end - 5000);
+      const lastNewline = chapterText.lastIndexOf('\n\n', end);
+
+      if (lastNewline > searchLimit) {
+        end = lastNewline;
+      }
+    }
+
+    chapters.push(chapterText.slice(start, end).trim());
+    chapterTitles.push(
+      prefix ? `${prefix} ${chapters.length}` : `part ${partIndex}`,
+    );
+
+    start = end;
+    partIndex++;
+  }
+}
+
+// export function splitIntoChapters(text: string, max = 20000) {
+//   const chapterRegex = /第[一二三四五六七八九十0-9]+章[:：]?[^\n]*/g;
+//   const chapters: string[] = [];
+//   const chapterTitles: string[] = [];
+//   let match;
+//   let lastIndex = 0;
+//   let prevTitle: string | null = null;
+
+//   while ((match = chapterRegex.exec(text)) !== null) {
+//     const chapterTitle = match[0];
+//     chapterTitles.push(chapterTitle);
+
+//     const chapterContent = text.slice(lastIndex, match.index).trim();
+//     if (!prevTitle && lastIndex === 0 && chapterContent) {
+//       chapters.push(chapterContent);
+//       chapterTitles.unshift('intro');
+//     }
+//     if (prevTitle && chapterContent) {
+//       chapters.push(prevTitle + '\n' + chapterContent);
+//     }
+
+//     prevTitle = chapterTitle;
+//     lastIndex = chapterRegex.lastIndex;
+//   }
+
+//   const finalChapterContent = text.slice(lastIndex).trim();
+//   if (finalChapterContent && prevTitle) {
+//     chapters.push(prevTitle + '\n' + finalChapterContent);
+//   }
+
+//   // Nếu không có chương nào được phát hiện, chia text thành các phần nhỏ
+//   if (chapters.length === 0) {
+//     let start = 0;
+//     while (start < text.length) {
+//       let end = start + max;
+
+//       // Đảm bảo không cắt giữa một đoạn (chia theo dấu xuống dòng đôi)
+//       if (end < text.length) {
+//         const lastNewline = text.lastIndexOf('\n\n', end);
+//         if (lastNewline > start) {
+//           end = lastNewline;
+//         }
+//       }
+
+//       chapters.push(text.slice(start, end).trim());
+//       chapterTitles.push(`Part ${chapters.length}`);
+//       start = end;
+//     }
+//   }
+
+//   return [chapters, chapterTitles];
+// }
 
 // export function splitIntoChunks(text: string, max = 20000) {
 //   // Cập nhật regex để nhận diện đúng tiêu đề chương
