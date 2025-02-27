@@ -45,10 +45,7 @@ export async function GET() {
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { novelId: string } },
-) {
+export async function POST(req: NextRequest) {
   const { filename, contents } = await req.json();
 
   // const user = getSeverUser();
