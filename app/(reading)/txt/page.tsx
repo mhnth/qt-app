@@ -27,12 +27,10 @@ export default function ReadingPage() {
     });
   }, [preferences.currentChapter]);
 
-  useEffect(() => {
-    const savedInputTxt = sessionStorage.getItem('inputTxt');
-    const savedOutputFileName = sessionStorage.getItem('outputFileName');
-    if (savedInputTxt) setInputTxt(savedInputTxt);
-    if (savedOutputFileName) setOutputFileName(savedOutputFileName);
-  }, [preferences.currentChapter]);
+  // useEffect(() => {
+  //   if (savedInputTxt) setInputTxt(savedInputTxt);
+  //   if (savedOutputFileName) setOutputFileName(savedOutputFileName);
+  // }, [preferences.currentChapter]);
 
   useEffect(() => {
     // sessionStorage.setItem('inputTxt', inputTxt);

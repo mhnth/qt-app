@@ -5,7 +5,7 @@ export function getZhViPairs(
   trieNames: ReverseTrie,
   trieVietPhrase: ReverseTrie,
   chinesePhienAm: { [key: string]: string },
-  personDict?: ReverseTrie
+  personDict?: ReverseTrie,
 ): { zh: string; vi: string }[] {
   text = [...replaceSpecialChars(text)].reverse().join('');
 
@@ -65,8 +65,8 @@ export function getZhViPairs(
       ) {
         const fallbackValue = chinesePhienAm[char] || char;
         tokens.push({
-          vi: fallbackValue.charAt(0).toUpperCase() + fallbackValue.slice(1),
-          // vi: fallbackValue,
+          // vi: fallbackValue.charAt(0).toUpperCase() + fallbackValue.slice(1),
+          vi: fallbackValue,
           zh: char,
         });
       }
@@ -121,7 +121,7 @@ export function replaceSpecialChars(text: string): string {
 
   return Object.entries(SPECIAL_CHARS).reduce(
     (result, [han, viet]) => result.replace(new RegExp(han, 'g'), viet),
-    text
+    text,
   );
 }
 
@@ -130,7 +130,7 @@ export function translateZhToVi(
   trieNames: ReverseTrie,
   trieVietPhrase: ReverseTrie,
   chinesePhienAm: { [key: string]: string },
-  hv: boolean = false
+  hv: boolean = false,
 ): string {
   text = [...replaceSpecialChars(text)].reverse().join('');
   const tokens: string[] = [];

@@ -41,3 +41,15 @@ export async function getAllWords() {
 
   console.log('All words:', allWords);
 }
+
+export const createWord = async (text: string, type: 'name' | 'vp') => {
+  try {
+    await fetch(`/api/dict/${type}`, {
+      method: 'POST',
+      body: JSON.stringify({ contents: text }),
+    });
+    return true;
+  } catch (error) {
+    return false;
+  }
+};

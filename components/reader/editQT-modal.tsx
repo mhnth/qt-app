@@ -1,6 +1,7 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import { IClose, ICopy, IRight } from '../icons';
 import { useQT } from '@/qt/QTContext';
+import { createWord } from '@/lib/api';
 
 interface EditQTModalProps {
   position: {
@@ -44,13 +45,15 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
     }
   }
 
-  const handleSubmit = async (e: FormEvent, fileName: string) => {
+  const handleSubmit = async (e: FormEvent, type: 'name' | 'vp') => {
     e.preventDefault();
     if (!chineseWord || !vietnameseWord || vietnameseWord === viWord) {
       alert('❌ Không hợp lệ, vui lòng xem hướng dẫn');
       return;
     }
     addToPersonalDictionary({ zh: chineseWord, vi: vietnameseWord });
+
+    createWord(`${chineseWord.trim()}=${vietnameseWord.trim()}`, type);
 
     // const res = await fetch('/api/dict', {
     //   method: 'POST',
@@ -164,8 +167,9 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
               </div>
 
               {/* submit bts */}
-              <div className="mr-2 mt-6 flex justify-end">
+              <div className="mr-2 mt-6 flex justify-end space-x-2">
                 <button
+                  className="rounded-md bg-rose-800 px-2 text-white hover:bg-rose-400"
                   onClick={(e) => {
                     e.preventDefault();
                     deleteWord(chineseWord);
@@ -176,12 +180,21 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="ml-auto bg-sky-700 p-2 text-white"
+                  className="rounded-md bg-amber-700 px-2 py-1 text-white hover:bg-amber-400"
                   onClick={(e) => {
-                    handleSubmit(e, 'Names2');
+                    handleSubmit(e, 'name');
                   }}
                 >
-                  Xác nhận
+                  Names
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-md bg-sky-700 px-2 py-1 text-white hover:bg-sky-400"
+                  onClick={(e) => {
+                    handleSubmit(e, 'vp');
+                  }}
+                >
+                  VietPhrase
                 </button>
               </div>
             </form>
