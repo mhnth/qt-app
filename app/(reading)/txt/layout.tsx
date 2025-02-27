@@ -3,8 +3,6 @@
 import { ReaderSidebar } from '@/components/reader/sidebar';
 import { Toolbar } from '@/components/reader/toolbar';
 import { ReaderProvider } from '@/hooks/ui-context';
-import { cx } from '@/lib/utils';
-import { ReactNode, useState } from 'react';
 
 export interface Novel {
   cover: string;
@@ -13,12 +11,11 @@ export interface Novel {
   link: string;
 }
 
-type Props = {
-  children: ReactNode;
-  chapterCount: number;
-};
-
-export default function ReadingLayout({ children, chapterCount }: Props) {
+export default function ReadingLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <>
       <ReaderProvider>
