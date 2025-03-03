@@ -6,9 +6,11 @@ import { useReader } from '@/hooks/ui-context';
 import { splitIntoChapters } from '@/lib/utils';
 import { useQT } from '@/qt/QTContext';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, memo } from 'react';
 
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+
+const VirtuosoMemoized = memo(Virtuoso);
 
 export default function ReadingPage() {
   const { translateQT } = useQT();
@@ -21,10 +23,17 @@ export default function ReadingPage() {
   useEffect(() => {
     console.log('runn ne');
 
-    virtuosoRef.current?.scrollToIndex({
-      index: preferences.currentChapter || 0,
-      align: 'start',
-    });
+    // virtuosoRef.current?.scrollToIndex({
+    //   index: preferences.currentChapter || 0,
+    //   align: 'start',
+    // });
+
+     setTimeout(() => {
+      virtuosoRef.current?.scrollToIndex({
+        index: preferences.currentChapter || 0,
+        align: 'start',
+      });
+    }, 50);
   }, [preferences.currentChapter]);
 
   // useEffect(() => {
@@ -88,7 +97,7 @@ export default function ReadingPage() {
     <div className="mx-auto min-h-screen max-w-4xl text-slate-100">
       <section className="flex h-screen w-full flex-col bg-slate-900/70 px-6 shadow-md">
         <div className="mt-2 h-full px-4 md:px-12">
-          <Virtuoso
+          <VirtuosoMemoized
             ref={virtuosoRef}
             id="virtuoso-container"
             className="no-scrollbar"
