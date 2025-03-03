@@ -33,7 +33,7 @@ export default function ReadingPage() {
         index: preferences.currentChapter || 0,
         align: 'start',
       });
-    }, 50);
+    }, 100);
   }, [preferences.currentChapter]);
 
   // useEffect(() => {
