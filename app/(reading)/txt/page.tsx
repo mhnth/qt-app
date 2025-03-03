@@ -20,21 +20,21 @@ export default function ReadingPage() {
   const { preferences, setChapterList } = useReader();
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
-  // useEffect(() => {
-  //   console.log('runn ne');
+  useEffect(() => {
+    console.log('runn ne');
 
-  //   // virtuosoRef.current?.scrollToIndex({
-  //   //   index: preferences.currentChapter || 0,
-  //   //   align: 'start',
-  //   // });
+    // virtuosoRef.current?.scrollToIndex({
+    //   index: preferences.currentChapter || 0,
+    //   align: 'start',
+    // });
 
-  //    setTimeout(() => {
-  //     virtuosoRef.current?.scrollToIndex({
-  //       index: preferences.currentChapter || 0,
-  //       align: 'start',
-  //     });
-  //   }, 100);
-  // }, [preferences.currentChapter]);
+     setTimeout(() => {
+      virtuosoRef.current?.scrollToIndex({
+        index: preferences.currentChapter || 0,
+        align: 'start',
+      });
+    }, 100);
+  }, [preferences.currentChapter]);
 
   // useEffect(() => {
   //   if (savedInputTxt) setInputTxt(savedInputTxt);
@@ -102,7 +102,6 @@ export default function ReadingPage() {
             id="virtuoso-container"
             className="no-scrollbar"
             style={{ height: '100%' }}
-            initialTopMostItemIndex={preferences.currentChapter || 0}
             totalCount={textParts.length + 1}
             itemContent={(index) => (
               <div className="virtuoso-scroller border-b border-slate-500 py-4 pt-14">
