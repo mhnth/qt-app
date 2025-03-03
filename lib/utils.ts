@@ -248,7 +248,7 @@ export function splitIntoChapters(text: string, max = 20000, subMax = 10000) {
     let chapterContent = text.slice(lastIndex, match.index).trim();
     if (!prevTitle && lastIndex === 0 && chapterContent) {
       chapters.push(chapterContent);
-      chapterTitles.unshift('intro');
+      chapterTitles.unshift('肇端');
     }
 
     if (prevTitle && chapterContent) {
