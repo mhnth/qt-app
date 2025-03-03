@@ -82,6 +82,9 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
 
   const handleExpandWord = (b: 1 | -1) => {
     expandWord(b);
+    if (deletedWord) {
+      addToPersonalDictionary({ zh: chineseWord, vi: vietnameseWord });
+    }
     setDeletedWord('');
   };
 
