@@ -96,7 +96,7 @@ export default function ReadingPage() {
             // initialTopMostItemIndex={preferences.currentChapter || 0}
             totalCount={textParts.length + 1}
             itemContent={(index) => (
-              <div className="virtuoso-scroller border-b border-slate-500 py-8">
+              <div className="virtuoso-scroller border-b border-slate-500 py-4 pt-14">
                 {index === 0 ? (
                   <>
                     <div className="flex justify-end">
