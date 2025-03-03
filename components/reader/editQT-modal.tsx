@@ -183,7 +183,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
                 </span>
               </div>
 
-              <div className={'space-x-2 p-2 text-sm text-slate-400'}>
+              <div className={'space-x-2 p-2 text-slate-400'}>
                 <button
                   disabled={otherWordMeaning.length > 1}
                   className="rounded-sm border-slate-500 px-2 py-1"
