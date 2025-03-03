@@ -56,6 +56,11 @@ export class Trie {
     return [longestPrefix, longestValue];
   }
 
+  batchDelete(words: string[]) {
+    if (!words) return false;
+    return words.map((word) => this.delete(word));
+  }
+
   delete(word: string): boolean {
     const deleteHelper = (
       node: TrieNode,

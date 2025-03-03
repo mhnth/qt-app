@@ -1,7 +1,8 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import { IClose, ICopy, IRight } from '../icons';
 import { useQT } from '@/qt/QTContext';
-import { createWord } from '@/lib/api';
+import { createWord, deleteWordDict } from '@/lib/api';
+import { cx } from '@/lib/utils';
 
 interface EditQTModalProps {
   position: {
@@ -13,6 +14,7 @@ interface EditQTModalProps {
   otherWordMeaning: { wrdIndex: number; mean: string }[];
 
   closeModal: () => void;
+  rerender: () => void;
   expandWord: (b: 1 | -1) => void;
 }
 
@@ -23,10 +25,12 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
   closeModal,
   expandWord,
   otherWordMeaning,
+  rerender,
 }) => {
   const [chineseWord, setChineseWord] = useState(zhWord);
   const [vietnameseWord, setVietNameseWord] = useState(viWord);
-  const { addToPersonalDictionary, deleteWord } = useQT();
+  const [deletedWord, setDeletedWord] = useState('');
+  const { addToPersonalDictionary, deleteWordLocal } = useQT();
 
   useEffect(() => {
     setChineseWord(zhWord);
@@ -55,21 +59,37 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
 
     createWord(`${chineseWord.trim()}=${vietnameseWord.trim()}`, type);
 
-    // const res = await fetch('/api/dict', {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     filename: fileName,
-    //     contents: `${chineseWord.trim()}=${vietnameseWord.trim()}`,
-    //   }),
-    // });
+    closeModal();
+  };
 
-    // if (res.ok) {
-    //   alert(
-    //     `Đã thêm ${chineseWord}=${vietnameseWord} vào từ điển, load lại để sử dụng`
-    //   );
-    //   setChineseWord('');
-    //   setVietNameseWord('');
-    // }
+  const toggleWord = (w: string) => {
+    if (!deletedWord) {
+      setDeletedWord(chineseWord);
+      deleteWordLocal(w);
+    } else {
+      addToPersonalDictionary({ zh: chineseWord, vi: vietnameseWord });
+      setDeletedWord('');
+    }
+
+    rerender();
+  };
+
+  const handleDelete = () => {
+    deleteWordDict(`${chineseWord}=${vietnameseWord}`);
+    setDeletedWord('');
+    closeModal();
+  };
+
+  const handleExpandWord = (b: 1 | -1) => {
+    expandWord(b);
+    setDeletedWord('');
+  };
+
+  const handleClose = () => {
+    if (deletedWord) {
+      addToPersonalDictionary({ zh: chineseWord, vi: vietnameseWord });
+      setDeletedWord('');
+    }
 
     closeModal();
   };
@@ -81,125 +101,137 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
           top: position.top,
           left: position.left,
         }}
-        className={`absolute z-50 w-full max-w-72 rounded-sm border border-gray-700 
-         bg-sky-100 text-base text-[#1f1f1f]`}
+        className={`absolute z-50 w-full max-w-72 rounded-sm border border-gray-600 
+         bg-slate-800 text-base text-[#1f1f1f]`}
       >
-        <div>
+        <>
           <div className="flex justify-between">
             <div className="flex space-x-1 text-gray-100">
               <button
-                onClick={() => expandWord(-1)}
-                className="flex items-center bg-sky-500 px-2 py-1"
+                onClick={() => handleExpandWord(-1)}
+                className="flex items-center bg-sky-700 px-2 py-1"
               >
                 <IRight className="h-3 w-3 rotate-180 fill-white" />
-                Mở rộng
+                Trái
               </button>
               <button
-                onClick={() => expandWord(1)}
-                className="flex items-center bg-sky-500 px-2 py-1"
+                onClick={() => handleExpandWord(1)}
+                className="flex items-center bg-sky-700 px-2 py-1"
               >
-                Mở rộng
+                Phải
                 <IRight className="h-3 w-3 fill-white" />
               </button>
             </div>
             <button
-              onClick={() => closeModal()}
+              onClick={() => handleClose()}
               className="bg-red-500 p-1 px-3"
             >
               <IClose className="h-3 w-3 fill-white" />
             </button>
           </div>
-          <div className="mt-3 p-2">
-            <form action="" className="">
-              <div className="flex items-center gap-1.5">
-                <label className="w-6 shrink-0">CN</label>
+
+          <div className="p-3 pb-0">
+            <div className="text-xs">
+              {otherWordMeaning.map((w, i) => {
+                const meanArr = w.mean.split('/');
+                return (
+                  <div className="inline" key={i}>
+                    <span className="m-[1px] inline-block text-amber-500">
+                      {meanArr[0]}
+                    </span>
+                    {meanArr.length > 1 && (
+                      <span className="text-slate-400">
+                        {`(` + meanArr.slice(1).join('/') + ')'}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="mt-1 p-2 text-sm text-slate-200">
+            <div className="rounded-md border border-slate-700 bg-slate-900">
+              <div className="flex items-center gap-1.5 border-b border-slate-700 px-1">
                 <input
                   value={chineseWord}
                   onChange={(e) => setChineseWord(e.target.value)}
                   type="text"
-                  className="w-full rounded-md border border-gray-700 p-1"
+                  className="w-full rounded-md bg-transparent p-2 outline-none"
                   required
                 />
                 <span
                   onClick={() => copyToClipboard(chineseWord)}
-                  className="flex items-center rounded-sm bg-amber-600 p-1.5"
+                  className="flex cursor-pointer items-center rounded-sm p-1.5"
                 >
                   <ICopy className="h-4 w-4 fill-white" />
                 </span>
               </div>
 
-              <div className="mt-2 flex items-center gap-1">
-                <label className="w-6 shrink-0">Vi</label>
+              <div className="flex items-center gap-1 border-b border-slate-600 px-1">
                 <input
                   value={vietnameseWord}
                   onChange={(e) => setVietNameseWord(e.target.value)}
                   type="text"
-                  className="w-full rounded-md border border-gray-700 p-1"
+                  className="w-full rounded-md bg-transparent p-2 outline-none"
                   required
                 />
                 <span
                   onClick={() => copyToClipboard(chineseWord)}
-                  className="flex items-center rounded-sm bg-amber-600 p-1.5"
+                  className="flex cursor-pointer items-center rounded-sm p-1.5"
                 >
                   <ICopy className="h-4 w-4 fill-white" />
                 </span>
               </div>
 
-              <div>
-                <label className="text-xs font-semibold">Nghĩa khác</label>
-                <div className="text-xs">
-                  {otherWordMeaning.map((w, i) => {
-                    const meanArr = w.mean.split('/');
-                    return (
-                      <div className="inline" key={i}>
-                        <span className="m-[1px] inline-block bg-amber-600 p-[2px]">
-                          {meanArr[0]}
-                        </span>
-                        {meanArr.length > 1 && (
-                          <span className="bg-amber-400 p-[2px]">
-                            {`(` + meanArr.slice(1).join('/') + ')'}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* submit bts */}
-              <div className="mr-2 mt-6 flex justify-end space-x-2">
+              <div className={'space-x-2 p-2 text-sm text-slate-400'}>
                 <button
-                  className="rounded-md bg-rose-800 px-2 text-white hover:bg-rose-400"
+                  disabled={otherWordMeaning.length > 1}
+                  className="rounded-sm border-slate-500 px-2 py-1"
                   onClick={(e) => {
                     e.preventDefault();
-                    deleteWord(chineseWord);
-                    closeModal();
+                    toggleWord(chineseWord);
                   }}
                 >
-                  Xóa
+                  {deletedWord ? 'quay lại' : 'thử xoá'}
                 </button>
                 <button
-                  type="submit"
-                  className="rounded-md bg-amber-700 px-2 py-1 text-white hover:bg-amber-400"
                   onClick={(e) => {
-                    handleSubmit(e, 'name');
+                    e.preventDefault();
+                    handleDelete();
                   }}
+                  className={cx(
+                    'rounded-md py-1',
+                    deletedWord ? 'text-rose-500' : 'hidden',
+                  )}
                 >
-                  Names
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-md bg-sky-700 px-2 py-1 text-white hover:bg-sky-400"
-                  onClick={(e) => {
-                    handleSubmit(e, 'vp');
-                  }}
-                >
-                  VietPhrase
+                  xoá hẳn
                 </button>
               </div>
-            </form>
+            </div>
+
+            {/* submit bts */}
+            <div className="mr-2 mt-6 flex justify-end space-x-2">
+              <button
+                type="submit"
+                className="rounded-md bg-amber-700 px-2 py-1 text-white hover:bg-amber-400"
+                onClick={(e) => {
+                  handleSubmit(e, 'name');
+                }}
+              >
+                Names
+              </button>
+              <button
+                type="submit"
+                className="rounded-md bg-sky-700 px-2 py-1 text-white hover:bg-sky-400"
+                onClick={(e) => {
+                  handleSubmit(e, 'vp');
+                }}
+              >
+                VietPhrase
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       </div>
     </>
   );

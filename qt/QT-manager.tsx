@@ -11,6 +11,7 @@ import { clearDB } from './useIndexedDB';
 import { getZhViPairs, translateZhToVi } from './utils';
 
 const PERSON_DICT_KEY = 'person_dict';
+const UNUSED_PERSON_DICT = 'unused_person_dict';
 
 export class QTManager {
   public loading: boolean = false;
@@ -31,16 +32,24 @@ export class QTManager {
 
   async loadFile(fileName: 'name' | 'vp', trie: ReverseTrie) {
     let entries: [string, string][] = (await this.loadData(fileName)) || [];
+    let unusedWords: string[] = [];
 
     let data = '';
+    let unusedData = '';
 
     if (entries.length === 0) {
       try {
-        const res = await fetch(`/api/dict/${fileName}`, {
-          cache: 'no-store',
-        });
+        const [res, unusedRes] = await Promise.all([
+          await fetch(`/api/dict/${fileName}`, {
+            cache: 'no-store',
+          }),
+          await fetch(`/api/dict/unused.txt`, {
+            cache: 'no-cache',
+          }),
+        ]);
 
         data = await res.text();
+        unusedData = await unusedRes.text();
 
         entries = data
           .split('\n')
@@ -49,6 +58,11 @@ export class QTManager {
             return key && value ? [key, value] : null;
           })
           .filter((entry) => entry !== null) as [string, string][];
+
+        unusedWords = unusedData.split('\n').map((line) => {
+          const [key, value] = line.trim().split('=');
+          return key && value ? key : '';
+        });
 
         await this.saveData(fileName, entries);
         console.log(
@@ -60,6 +74,7 @@ export class QTManager {
     }
 
     trie.batchInsert(entries);
+    trie.batchDelete(unusedWords);
   }
 
   // Get and translate pairs
@@ -126,8 +141,10 @@ export class QTManager {
 
   async loadDictionary() {
     this.loading = true;
-    // load person dictionary
+
+    // load local person dictionary
     const personDictData = getItemLocalStorage(PERSON_DICT_KEY);
+    const unusedPersonDictData = getItemLocalStorage(UNUSED_PERSON_DICT);
 
     const personDict = new ReverseTrie();
     if (personDictData) {
@@ -145,6 +162,8 @@ export class QTManager {
       this.loadFile('vp', this.trieVietPhrase),
     ]);
 
+    this.trieNames.batchDelete(unusedPersonDictData);
+    this.trieVietPhrase.batchDelete(unusedPersonDictData);
     this.loading = false;
   }
 
@@ -162,13 +181,19 @@ export class QTManager {
 
   deleteWord(word: string) {
     word = [...word].reverse().join('');
-    const t = this.trieVietPhrase?.delete(word);
-    console.log('-----', t, word);
+    this.trieVietPhrase?.delete(word);
+
+    let unusedPersonDict = getItemLocalStorage(UNUSED_PERSON_DICT) || [];
+
+    let unusedSet = new Set(unusedPersonDict);
+
+    unusedSet.add(word);
+
+    setItemLocalStorage(UNUSED_PERSON_DICT, [...unusedSet]);
 
     const isExistInLocalDict = this.personalDict?.delete(word);
 
     if (isExistInLocalDict) {
-      // delete word in localStorage
       const existingDictData = getItemLocalStorage(PERSON_DICT_KEY) || [];
 
       const updatedDictData = existingDictData.filter(

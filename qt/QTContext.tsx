@@ -23,7 +23,7 @@ interface QTContextInterface {
   addToPersonalDictionary: ({ zh, vi }: { zh: string; vi: string }) => void;
   getPersonalDictionary: () => [zh: string, vi: string][];
   updatePersonalDictionary: (newDict: [string, string][]) => void;
-  deleteWord: (word: string) => void;
+  deleteWordLocal: (word: string) => void;
 }
 
 const QTContext = createContext<QTContextInterface | undefined>(undefined);
@@ -45,7 +45,7 @@ export const QTProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   if (!contextManager) {
     return (
-      <div className="flex justify-center items-center mt-20">
+      <div className="mt-20 flex items-center justify-center">
         Loading dictionary...
       </div>
     );
@@ -88,7 +88,7 @@ export const QTProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           contextManager.getPersonalDictionary.bind(contextManager),
         updatePersonalDictionary:
           contextManager.updatePersonalDictionary.bind(contextManager),
-        deleteWord: contextManager.deleteWord.bind(contextManager),
+        deleteWordLocal: contextManager.deleteWord.bind(contextManager),
       }}
     >
       {children}

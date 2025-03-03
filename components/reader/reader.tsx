@@ -24,8 +24,9 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
   const [currentParPosition, setCurrentParPosition] = useState(0);
   const [currentWordPosition, setCurrentWordPosition] = useState(0);
   const [selectedWordsPosition, setSelectedWordsPosition] = useState<number[]>(
-    []
+    [],
   );
+  const [triggerRerender, setRerender] = useState(false);
 
   const [zhWord, setZhWord] = useState<string>('');
   const [viWord, setViWord] = useState<string>('');
@@ -65,7 +66,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
   if (loading)
     return (
-      <div className="flex justify-center gap-2 items-center fixed inset-0 backdrop-sepia-1 bg-black/40">
+      <div className="backdrop-sepia-1 fixed inset-0 flex items-center justify-center gap-2 bg-black/40">
         {/* <Skeleton message="Loading QT Dictionary, please wait" /> */}
         <Spinner />
         Loading Dictionary...
@@ -91,7 +92,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
     if (selectedWordsPosition.includes(newIndex)) {
       setSelectedWordsPosition(
-        selectedWordsPosition.filter((i) => i !== currentWordPosition)
+        selectedWordsPosition.filter((i) => i !== currentWordPosition),
       );
     } else {
       const newArr =
@@ -107,14 +108,14 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
   const selectWord = (
     parIndex: number,
     wrdIndex: number,
-    e: React.MouseEvent<HTMLSpanElement>
+    e: React.MouseEvent<HTMLSpanElement>,
   ) => {
     const target = e.target as HTMLElement;
     const spanRect = target.getBoundingClientRect();
 
     // 📌 Lấy vị trí của Virtuoso Scroller
     const virtuosoScroller = document.querySelector(
-      '#virtuoso-container'
+      '#virtuoso-container',
     ) as HTMLElement;
     if (!virtuosoScroller) return;
 
@@ -163,6 +164,10 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
     setSelectedWordsPosition([]);
   };
 
+  const rerender = () => {
+    setRerender(!triggerRerender);
+  };
+
   return (
     <>
       <article ref={ref} {...props} className="mx-auto h-max">
@@ -171,7 +176,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
             if (!p[0]) return;
 
             return (
-              <div key={parIndex} className="contents lol">
+              <div key={parIndex} className="lol contents">
                 <p key={parIndex}>
                   {p.map((wordRaw, wrdIndex) => {
                     const isHighlight =
@@ -187,7 +192,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                           data-word-vi={viParagraphs[parIndex][wrdIndex]}
                           onClick={(e) => selectWord(parIndex, wrdIndex, e)}
                           className={cx(
-                            isHighlight && 'bg-orange-500 text-black'
+                            isHighlight && 'bg-orange-500 text-black',
                           )}
                           key={wrdIndex}
                         >
@@ -207,7 +212,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                           key={wrdIndex}
                           className={cx(
                             // 'spank',
-                            isHighlight && 'bg-orange-500 text-black'
+                            isHighlight && 'bg-orange-500 text-black',
                           )}
                         >
                           {' ' + capitalizeFirstLetter(word)}
@@ -223,7 +228,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                             selectWord(parIndex, wrdIndex, e);
                           }}
                           className={cx(
-                            isHighlight && 'bg-orange-500 text-black'
+                            isHighlight && 'bg-orange-500 text-black',
                           )}
                           key={wrdIndex}
                         >
@@ -241,7 +246,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                         key={wrdIndex}
                         className={cx(
                           // 'spank',
-                          isHighlight && 'bg-orange-500 text-black'
+                          isHighlight && 'bg-orange-500 text-black',
                         )}
                       >
                         {' ' + word}
@@ -266,6 +271,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
             zhWord={zhWord}
             viWord={viWord}
             closeModal={closeModal}
+            rerender={rerender}
             expandWord={handleExpandWord}
           />
         )}

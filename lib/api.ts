@@ -53,3 +53,15 @@ export const createWord = async (text: string, type: 'name' | 'vp') => {
     return false;
   }
 };
+
+export const deleteWordDict = async (text: string) => {
+  try {
+    await fetch(`/api/dict`, {
+      method: 'DELETE',
+      body: JSON.stringify({ contents: text }),
+    });
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
