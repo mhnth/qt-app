@@ -150,7 +150,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
             </div>
           </div>
           <div className="mt-1 p-2 text-sm text-slate-200">
-            <div className="rounded-md border border-slate-700 bg-slate-900">
+            <div className="rounded-md border border-slate-700 bg-slate-900 text-base">
               <div className="flex items-center gap-1.5 border-b border-slate-700 px-1">
                 <input
                   value={chineseWord}
@@ -183,7 +183,7 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
                 </span>
               </div>
 
-              <div className={'space-x-2 p-2 text-slate-400'}>
+              <div className={'space-x-2 p-2 text-sm text-slate-400'}>
                 <button
                   disabled={otherWordMeaning.length > 1}
                   className="rounded-sm border-slate-500 px-2 py-1"
