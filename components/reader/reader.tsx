@@ -115,7 +115,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
     // 📌 Lấy vị trí của Virtuoso Scroller
     const virtuosoScroller = document.querySelector(
-      '#virtuoso-container',
+      '#v-container',
     ) as HTMLElement;
     if (!virtuosoScroller) return;
 

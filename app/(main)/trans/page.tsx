@@ -73,8 +73,8 @@ export default function TranslatePage() {
   return (
     <div className="mx-auto max-w-4xl text-white">
       <div
-        className="md:h-max md:mt-6 h-[100vh] w-full md:rounded-md flex flex-col bg-neutral-800 
-                   border md:p-8 p-5 bg-opacity-60 shadow-md border-neutral-600"
+        className="flex h-[100vh] w-full flex-col border border-neutral-600 bg-neutral-800 bg-opacity-60 
+                   p-5 shadow-md md:mt-6 md:h-max md:rounded-md md:p-8"
       >
         <div className="">
           <div className="flex justify-between">
@@ -100,16 +100,16 @@ export default function TranslatePage() {
           </div>
 
           <textarea
-            className="mt-2 h-[100px] w-full outline-none rounded-sm border border-neutral-500 
-            p-4 bg-neutral-700 bg-opacity-50"
+            className="mt-2 h-[100px] w-full rounded-sm border border-neutral-500 bg-neutral-700 
+            bg-opacity-50 p-4 outline-none"
             value={inputTxt}
             onChange={(e) => setInputTxt(e.target.value)}
           />
         </div>
 
-        <div className="mt-3 rounded-md px-4 border border-neutral-600">
+        <div className="mt-3 rounded-md border border-neutral-600 px-4">
           <div className="">
-            <div className="flex justify-between items-center border-b border-neutral-600">
+            <div className="flex items-center justify-between border-b border-neutral-600">
               <label>
                 Kết quả dịch
                 <span className="ml-2 font-light underline">
@@ -125,14 +125,14 @@ export default function TranslatePage() {
                 </button>
               </div>
             </div>
-            <div className="md:h-[500px] mt-4 h-[400px]">
+            <div className="mt-4 h-[400px] md:h-[500px]">
               <Virtuoso
-                id="virtuoso-container"
+                id="v-container"
                 style={{ height: '100%' }}
                 totalCount={textParts.length}
                 itemContent={(index) => (
                   <div
-                    className="virtuoso-scroller" // Đảm bảo phần tử container có class này
+                    className="v-scroller" // Đảm bảo phần tử container có class này
                   >
                     <Reader rawText={textParts[index]} />
                   </div>

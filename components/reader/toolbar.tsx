@@ -16,7 +16,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({}) => {
   useEffect(() => {
     let previousScrollTop = 0;
 
-    const container = document.getElementById('virtuoso-container');
+    const container = document.getElementById('v-container');
 
     if (!container) return;
 

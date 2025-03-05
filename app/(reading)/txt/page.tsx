@@ -28,7 +28,7 @@ export default function ReadingPage() {
     //   align: 'start',
     // });
 
-     setTimeout(() => {
+    setTimeout(() => {
       virtuosoRef.current?.scrollToIndex({
         index: preferences.currentChapter || 0,
         align: 'start',
@@ -99,12 +99,12 @@ export default function ReadingPage() {
         <div className="mt-2 h-full px-4 md:px-12">
           <VirtuosoMemoized
             ref={virtuosoRef}
-            id="virtuoso-container"
+            id="v-container"
             className="no-scrollbar"
             style={{ height: '100%' }}
             totalCount={textParts.length + 1}
             itemContent={(index) => (
-              <div className="virtuoso-scroller border-b border-slate-500 py-4 pt-14">
+              <div className="v-scroller border-b border-slate-500 py-4 pt-14">
                 {index === 0 ? (
                   <>
                     <div className="flex justify-end">
