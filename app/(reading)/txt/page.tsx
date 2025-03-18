@@ -139,7 +139,7 @@ const VirtualList = memo(
             />
           ) : (
             <div className="v-scroller border-b border-slate-500 py-4">
-              <Reader rawText={data[index - 1]} />
+              <Reader rawText={data[index]} />
             </div>
           )
         }
