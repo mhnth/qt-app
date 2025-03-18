@@ -95,6 +95,8 @@ const Header = memo(
   ),
 );
 
+Header.displayName = 'Header';
+
 // Định nghĩa type cho props của VirtualList
 interface VirtualListProps {
   data: string[];
@@ -149,6 +151,8 @@ const VirtualList = memo(
     prevProps.data === nextProps.data &&
     prevProps.initialScrollIndex === nextProps.initialScrollIndex,
 );
+
+VirtualList.displayName = 'VirtualList';
 
 export default function ReadingPage() {
   const { translateQT } = useQT() as QTContext;
@@ -227,7 +231,6 @@ export default function ReadingPage() {
       virtuosoRef.current.scrollToIndex({
         index: preferences.currentChapter || 0,
         align: 'start',
-        // behavior: 'smooth',
       });
     }
   }, [preferences.currentChapter]);
