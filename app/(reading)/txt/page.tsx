@@ -6,7 +6,14 @@ import { useReader } from '@/hooks/ui-context';
 import { splitIntoChapters } from '@/lib/utils';
 import { useQT } from '@/qt/QTContext';
 import Link from 'next/link';
-import { useEffect, useRef, useCallback, memo, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useCallback,
+  memo,
+  useState,
+  RefObject,
+} from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 // Định nghĩa type cho context
@@ -95,6 +102,7 @@ interface VirtualListProps {
   handleDownload: () => void;
   handleUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleDel: () => void;
+  scrollToIndexFn: (virtuosoRef: RefObject<VirtuosoHandle | null>) => void;
 }
 
 const VirtualList = memo(
@@ -104,24 +112,13 @@ const VirtualList = memo(
     handleDel,
     handleDownload,
     handleUpload,
+    scrollToIndexFn,
   }: VirtualListProps) => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
 
-    // Hàm điều khiển cuộn
-    const scrollToIndex = useCallback((index: number) => {
-      if (virtuosoRef.current && index >= 0) {
-        virtuosoRef.current.scrollToIndex({
-          index,
-          align: 'start',
-          behavior: 'smooth',
-        });
-      }
-    }, []);
-
-    // Cuộn lần đầu khi mount
     useEffect(() => {
-      scrollToIndex(initialScrollIndex);
-    }, []); // Không có dependency, chỉ chạy khi mount
+      scrollToIndexFn(virtuosoRef);
+    }, [scrollToIndexFn]);
 
     return (
       <Virtuoso
@@ -217,9 +214,22 @@ export default function ReadingPage() {
     setChapterList(transTitles?.split('000') || chapterTitles);
   }, [inputTxt, outputFileName]);
 
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
+
+  const handleScrollToIndex = (ref: RefObject<VirtuosoHandle | null>) => {
+    virtuosoRef.current = ref.current; // Lưu ref
+  };
+
   // Debug preferences.currentChapter
   useEffect(() => {
     console.log('currentChapter changed:', preferences.currentChapter);
+    if (virtuosoRef.current) {
+      virtuosoRef.current.scrollToIndex({
+        index: preferences.currentChapter || 0,
+        align: 'start',
+        // behavior: 'smooth',
+      });
+    }
   }, [preferences.currentChapter]);
 
   return (
@@ -227,36 +237,13 @@ export default function ReadingPage() {
       <section className="flex h-screen w-full flex-col bg-slate-900/70 px-6 shadow-md">
         <div className="relative mt-2 h-full px-4 md:px-12">
           <VirtualList
+            scrollToIndexFn={handleScrollToIndex}
             data={textParts}
             initialScrollIndex={preferences.currentChapter || 0}
             handleDownload={handleDownload}
             handleUpload={handleUpload}
             handleDel={handleDel}
           />
-          {/* <div className="absolute bottom-4 left-1/2 flex w-max -translate-x-1/2 items-center gap-8 px-4">
-            <label htmlFor="file-upload" className="cursor-pointer">
-              <IUpload className="w-5 fill-neutral-300" />
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".txt"
-              className="hidden"
-              onChange={handleUpload}
-            />
-            <button onClick={handleDel}>
-              <IDelete className="w-5 fill-neutral-300" />
-            </button>
-            <button onClick={handleCopy}>
-              <ICopy className="w-4 fill-neutral-300" />
-            </button>
-            <button
-              className="rounded-md bg-sky-700 px-4 py-1 hover:bg-sky-300"
-              onClick={handleDownload}
-            >
-              download
-            </button>
-          </div> */}
         </div>
       </section>
     </div>
