@@ -139,7 +139,7 @@ const VirtualList = memo(
             />
           ) : (
             <div className="v-scroller border-b border-slate-500 py-4">
-              <Reader rawText={data[index]} />
+              <Reader rawText={data[index - 1]} />
             </div>
           )
         }
@@ -233,7 +233,7 @@ export default function ReadingPage() {
         align: 'start',
       });
     }
-  }, [preferences.currentChapter]);
+  }, [preferences.currentChapter, inputTxt]);
 
   return (
     <div className="mx-auto min-h-screen max-w-4xl text-slate-100">
