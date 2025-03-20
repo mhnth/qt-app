@@ -6,7 +6,13 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { capitalizeFirstLetter, cx, splitArray } from '@/lib/utils';
+import {
+  capitalizeFirstLetter,
+  cx,
+  splitArray,
+  swapAdjacentWords,
+  swapAdjacentWords2,
+} from '@/lib/utils';
 
 import { EditQTModal } from './editQT-modal';
 import { useQT } from '@/qt/QTContext';
@@ -173,8 +179,9 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
       <article ref={ref} {...props} className="font-lora mx-auto h-max">
         <div className="mx-auto text-justify leading-10">
           {viParagraphs.map((p, parIndex) => {
-            if (!p[0]) return;
+            if (!p[0] || p.length < 1) return;
 
+            p = swapAdjacentWords2(p, 'đích');
             return (
               <div key={parIndex} className="lol contents">
                 <p key={parIndex}>

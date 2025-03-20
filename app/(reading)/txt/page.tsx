@@ -108,19 +108,8 @@ interface VirtualListProps {
 }
 
 const VirtualList = memo(
-  ({
-    data,
-    initialScrollIndex,
-    handleDel,
-    handleDownload,
-    handleUpload,
-    scrollToIndexFn,
-  }: VirtualListProps) => {
+  ({ data, handleDownload, handleUpload }: VirtualListProps) => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
-
-    useEffect(() => {
-      scrollToIndexFn(virtuosoRef);
-    }, [scrollToIndexFn]);
 
     return (
       <Virtuoso
@@ -158,19 +147,15 @@ export default function ReadingPage() {
   const { translateQT } = useQT() as QTContext;
   const [inputTxt, setInputTxt] = useState<string>('');
   const [outputFileName, setOutputFileName] = useState<string>('');
-  const [textParts, setTextParts] = useState<string[]>([]);
+  const [novelText, setNovelText] = useState<string[]>([]);
+  const [usedChaptersTexts, setUsedChapterText] = useState<string[]>([]);
   const { preferences, setChapterList } = useReader() as ReaderContext;
 
   const handleDel = useCallback(() => {
     setInputTxt('');
     setOutputFileName('');
-    setTextParts([]);
+    setNovelText([]);
   }, []);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(textParts.join('\n'));
-    alert('✔️ Đã sao chép kết quả vào khay nhớ tạm');
-  }, [textParts]);
 
   const handleUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -202,50 +187,82 @@ export default function ReadingPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, [inputTxt, outputFileName, translateQT]);
+  }, [inputTxt, outputFileName]);
 
   useEffect(() => {
     sessionStorage.setItem('outputFileName', outputFileName);
     if (!inputTxt) {
-      setTextParts([]);
+      setNovelText([]);
       setChapterList([]);
       return;
     }
 
     const [textChunks, chapterTitles] = splitIntoChapters(inputTxt);
     const transTitles = translateQT(chapterTitles.join('000'), false);
-    setTextParts(textChunks || []);
+    setNovelText(textChunks || []);
     setChapterList(transTitles?.split('000') || chapterTitles);
   }, [inputTxt, outputFileName]);
 
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
-  const handleScrollToIndex = (ref: RefObject<VirtuosoHandle | null>) => {
-    virtuosoRef.current = ref.current; // Lưu ref
-  };
-
-  // Debug preferences.currentChapter
   useEffect(() => {
-    console.log('currentChapter changed:', preferences.currentChapter);
+    if (!preferences.currentChapter) return;
+
+    setUsedChapterText(() => novelText.slice(preferences.currentChapter! - 1));
+
     if (virtuosoRef.current) {
       virtuosoRef.current.scrollToIndex({
-        index: preferences.currentChapter || 0,
+        index: 1,
         align: 'start',
       });
     }
-  }, [preferences.currentChapter, inputTxt]);
+  }, [preferences.currentChapter]);
+
+  useEffect(() => {
+    setUsedChapterText(novelText);
+
+    if (virtuosoRef.current) {
+      virtuosoRef.current.scrollToIndex({
+        index: 2,
+        align: 'start',
+      });
+    }
+  }, [novelText]);
 
   return (
     <div className="mx-auto min-h-screen max-w-4xl text-slate-100">
       <section className="flex h-screen w-full flex-col bg-slate-900/70 px-6 shadow-md">
         <div className="relative mt-2 h-full px-4 md:px-12">
-          <VirtualList
+          {/* <VirtualList
             scrollToIndexFn={handleScrollToIndex}
-            data={textParts}
+            data={usedChaptersTexts || ''}
             initialScrollIndex={preferences.currentChapter || 0}
             handleDownload={handleDownload}
             handleUpload={handleUpload}
             handleDel={handleDel}
+          /> */}
+
+          <Virtuoso
+            ref={virtuosoRef}
+            id="v-container"
+            className="no-scrollbar"
+            style={{ height: '100%' }}
+            totalCount={usedChaptersTexts.length + 1}
+            itemContent={(index: number) =>
+              index === 0 ? (
+                <Header
+                  handleDownload={handleDownload}
+                  handleUpload={handleUpload}
+                  handleCopy={() => {}}
+                  handleDel={() => {}}
+                />
+              ) : (
+                <div className="v-scroller border-b border-slate-500 py-4">
+                  <Reader rawText={usedChaptersTexts[index - 1]} />
+                </div>
+              )
+            }
+            increaseViewportBy={300}
           />
         </div>
       </section>

@@ -233,7 +233,7 @@ export function splitIntoChapters_(text: string, max = 20000) {
   return [chapters, chapterTitles];
 }
 
-export function splitIntoChapters(text: string, max = 20000, subMax = 10000) {
+export function splitIntoChapters(text: string, max = 2000000, subMax = 10000) {
   const chapterRegex = /第[一二三四五六七八九十零百千万两0-9]+章[:：]?[^\n]*/g;
   const chapters: string[] = [];
   const chapterTitles: string[] = [];
@@ -325,102 +325,76 @@ function splitLongChapter(
   }
 }
 
-// export function splitIntoChapters(text: string, max = 20000) {
-//   const chapterRegex = /第[一二三四五六七八九十0-9]+章[:：]?[^\n]*/g;
-//   const chapters: string[] = [];
-//   const chapterTitles: string[] = [];
-//   let match;
-//   let lastIndex = 0;
-//   let prevTitle: string | null = null;
+export function swapAdjacentWords(arr: string[]): string[] {
+  // Duyệt qua mảng từ cuối đến đầu để tránh thay đổi chỉ số khi xóa phần tử
+  for (let i = arr.length - 1; i >= 0; i--) {
+    if (arr[i] === 'đích') {
+      // Kiểm tra nếu phần tử 'đích' không phải phần tử đầu hay cuối mảng
+      if (i > 0 && i < arr.length - 1) {
+        // Đổi chỗ hai phần tử cạnh 'đích'
+        [arr[i - 1], arr[i + 1]] = [arr[i + 1], arr[i - 1]];
+      }
+      // Loại bỏ phần tử 'đích'
+      // arr.splice(i, 1);
+    }
+  }
 
-//   while ((match = chapterRegex.exec(text)) !== null) {
-//     const chapterTitle = match[0];
-//     chapterTitles.push(chapterTitle);
+  return arr;
+}
 
-//     const chapterContent = text.slice(lastIndex, match.index).trim();
-//     if (!prevTitle && lastIndex === 0 && chapterContent) {
-//       chapters.push(chapterContent);
-//       chapterTitles.unshift('intro');
-//     }
-//     if (prevTitle && chapterContent) {
-//       chapters.push(prevTitle + '\n' + chapterContent);
-//     }
+export function swapAdjacentWords2(
+  viArr: string[],
+  target: string,
+  zhArr?: string[],
+): string[] {
+  const toReverseWords = [
+    'mẫu thân',
+    'tỷ',
+    'đệ',
+    'ta',
+    'phụ thân',
+    'ma ma',
+    'muội',
+    'đêm',
+    'chính',
+  ];
 
-//     prevTitle = chapterTitle;
-//     lastIndex = chapterRegex.lastIndex;
-//   }
+  const swaptoRightWords = ['cho ta', 'nhất', 'kia'];
+  const swaptoLeftWords = ['bên trong'];
 
-//   const finalChapterContent = text.slice(lastIndex).trim();
-//   if (finalChapterContent && prevTitle) {
-//     chapters.push(prevTitle + '\n' + finalChapterContent);
-//   }
+  for (let i = 0; i < viArr.length; i++) {
+    if (swaptoLeftWords.some((w) => viArr[i].includes(w)) && i > 0) {
+      [viArr[i], viArr[i - 1]] = [viArr[i - 1], viArr[i]];
+      i++;
+      continue;
+    }
 
-//   // Nếu không có chương nào được phát hiện, chia text thành các phần nhỏ
-//   if (chapters.length === 0) {
-//     let start = 0;
-//     while (start < text.length) {
-//       let end = start + max;
+    if (swaptoRightWords.some((w) => viArr[i].includes(w)) && i > 0) {
+      [viArr[i], viArr[i + 1]] = [viArr[i + 1], viArr[i]];
+      i++;
+      continue;
+    }
 
-//       // Đảm bảo không cắt giữa một đoạn (chia theo dấu xuống dòng đôi)
-//       if (end < text.length) {
-//         const lastNewline = text.lastIndexOf('\n\n', end);
-//         if (lastNewline > start) {
-//           end = lastNewline;
-//         }
-//       }
+    if (viArr[i] === target) {
+      if (
+        i > 0 &&
+        (toReverseWords.some(
+          (word) =>
+            new RegExp(`\\b${word}\\b`).test(viArr[i - 1]) ||
+            new RegExp(`\\b${word}\\b`).test(viArr[i + 1]),
+        ) ||
+          /[A-Z]/.test(viArr[i - 1]) ||
+          /[A-Z]/.test(viArr[i + 1]))
+      ) {
+        [viArr[i - 1], viArr[i + 1]] = [viArr[i + 1], viArr[i - 1]];
+        viArr[i] = 'của';
+        i++;
+      }
+    }
+  }
 
-//       chapters.push(text.slice(start, end).trim());
-//       chapterTitles.push(`Part ${chapters.length}`);
-//       start = end;
-//     }
-//   }
-
-//   return [chapters, chapterTitles];
-// }
-
-// export function splitIntoChunks(text: string, max = 20000) {
-//   // Cập nhật regex để nhận diện đúng tiêu đề chương
-//   const chapterRegex = /第[一二三四五六七八九十0-9]+章[:：]?[^\n]*/g;
-//   const chapters = [];
-//   let match;
-//   let lastIndex = 0;
-
-//   // Kiểm tra nếu có phần giới thiệu trước chương đầu tiên
-//   const firstChapterMatch = chapterRegex.exec(text);
-//   if (firstChapterMatch) {
-//     // Phần giới thiệu là nội dung trước chương đầu tiên
-//     const introContent = text.slice(0, firstChapterMatch.index).trim();
-//     if (introContent) {
-//       chapters.push(introContent); // Thêm phần giới thiệu vào mảng nếu có
-//     }
-//     // Cập nhật lastIndex để tiếp tục từ chương đầu tiên
-//     lastIndex = firstChapterMatch.index;
-//     let t = text.slice(lastIndex).trim();
-
-//   }
-
-//   // Tiến hành tìm và chia các chương tiếp theo
-//   while ((match = chapterRegex.exec(text)) !== null) {
-//     const chapterTitle = match[0];
-//     const chapterContent = text.slice(lastIndex, match.index).trim();
-
-//     // Thêm chương vào mảng nếu có nội dung
-//     if (chapterContent) {
-//       chapters.push(chapterTitle + '\n' + chapterContent);
-//     }
-
-//     // Cập nhật lastIndex cho vòng lặp tiếp theo
-//     lastIndex = chapterRegex.lastIndex;
-//   }
-
-//   // Xử lý chương cuối cùng (sau tiêu đề chương cuối cùng)
-//   const finalChapterContent = text.slice(lastIndex).trim();
-//   if (finalChapterContent) {
-//     chapters.push(finalChapterContent);
-//   }
-
-//   return chapters;
-// }
+  return viArr;
+}
 
 export function splitIntoChunks(input: string, max: number = 1000): string[] {
   const chunks = [];
