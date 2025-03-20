@@ -181,7 +181,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
           {viParagraphs.map((p, parIndex) => {
             if (!p[0] || p.length < 1) return;
 
-            p = swapAdjacentWords2(p, 'đích');
+            // p = swapAdjacentWords2(p, 'đích');
             return (
               <div key={parIndex} className="lol contents">
                 <p key={parIndex}>
