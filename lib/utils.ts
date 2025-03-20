@@ -343,11 +343,12 @@ export function swapAdjacentWords(arr: string[]): string[] {
 }
 
 export function swapAdjacentWords2(
-  viArr: string[],
+  result: string[],
   target: string,
   zhArr?: string[],
 ): string[] {
-  const toReverseWords = [
+  // const result = [...viArr]; // Sao chép mảng để không thay đổi gốc
+  const toReverseWords = new Set([
     'mẫu thân',
     'tỷ',
     'đệ',
@@ -357,43 +358,47 @@ export function swapAdjacentWords2(
     'muội',
     'đêm',
     'chính',
-  ];
+  ]);
+  const swapToRightWords = new Set(['cho ta', 'nhất', 'kia']);
+  const swapToLeftWords = new Set(['bên trong']);
 
-  const swaptoRightWords = ['cho ta', 'nhất', 'kia'];
-  const swaptoLeftWords = ['bên trong'];
-
-  for (let i = 0; i < viArr.length; i++) {
-    if (swaptoLeftWords.some((w) => viArr[i].includes(w)) && i > 0) {
-      [viArr[i], viArr[i - 1]] = [viArr[i - 1], viArr[i]];
+  for (let i = 0; i < result.length; i++) {
+    // Xử lý swap sang trái
+    if (i > 0 && swapToLeftWords.has(result[i].split('/')[0])) {
+      [result[i], result[i - 1]] = [result[i - 1], result[i]];
       i++;
       continue;
     }
 
-    if (swaptoRightWords.some((w) => viArr[i].includes(w)) && i > 0) {
-      [viArr[i], viArr[i + 1]] = [viArr[i + 1], viArr[i]];
+    // Xử lý swap sang phải
+    if (
+      i < result.length - 1 &&
+      swapToRightWords.has(result[i].split('/')[0])
+    ) {
+      [result[i], result[i + 1]] = [result[i + 1], result[i]];
       i++;
       continue;
     }
 
-    if (viArr[i] === target) {
+    // Xử lý target
+    if (result[i] === target && i > 0 && i < result.length - 1) {
+      const prev = result[i - 1].split('/')[0];
+      const next = result[i + 1].split('/')[0];
       if (
-        i > 0 &&
-        (toReverseWords.some(
-          (word) =>
-            new RegExp(`\\b${word}\\b`).test(viArr[i - 1]) ||
-            new RegExp(`\\b${word}\\b`).test(viArr[i + 1]),
-        ) ||
-          /[A-Z]/.test(viArr[i - 1]) ||
-          /[A-Z]/.test(viArr[i + 1]))
+        toReverseWords.has(prev) ||
+        toReverseWords.has(next) ||
+        /[A-Z]/.test(prev) ||
+        /[A-Z]/.test(next)
       ) {
-        [viArr[i - 1], viArr[i + 1]] = [viArr[i + 1], viArr[i - 1]];
-        viArr[i] = 'của';
+        console.log('jahh');
+        [result[i - 1], result[i + 1]] = [next, prev];
+        result[i] = 'của';
         i++;
       }
     }
   }
 
-  return viArr;
+  return result;
 }
 
 export function splitIntoChunks(input: string, max: number = 1000): string[] {
