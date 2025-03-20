@@ -148,8 +148,9 @@ export default function ReadingPage() {
   const [inputTxt, setInputTxt] = useState<string>('');
   const [outputFileName, setOutputFileName] = useState<string>('');
   const [novelText, setNovelText] = useState<string[]>([]);
-  const [usedChaptersTexts, setUsedChapterText] = useState<string[]>([]);
+  // const [usedChaptersTexts, setUsedChapterText] = useState<string[]>([]);
   const { preferences, setChapterList } = useReader() as ReaderContext;
+  const [initialChapter, setChapter] = useState<number>(0);
 
   const handleDel = useCallback(() => {
     setInputTxt('');
@@ -208,7 +209,9 @@ export default function ReadingPage() {
   useEffect(() => {
     if (!preferences.currentChapter) return;
 
-    setUsedChapterText(() => novelText.slice(preferences.currentChapter! - 1));
+    // setUsedChapterText(() => novelText.slice(preferences.currentChapter! - 1));
+
+    setChapter(preferences.currentChapter! - 1);
 
     if (virtuosoRef.current) {
       virtuosoRef.current.scrollToIndex({
@@ -218,16 +221,16 @@ export default function ReadingPage() {
     }
   }, [preferences.currentChapter]);
 
-  useEffect(() => {
-    setUsedChapterText(novelText);
+  // useEffect(() => {
+  //   setUsedChapterText(novelText);
 
-    if (virtuosoRef.current) {
-      virtuosoRef.current.scrollToIndex({
-        index: 2,
-        align: 'start',
-      });
-    }
-  }, [novelText]);
+  //   if (virtuosoRef.current) {
+  //     virtuosoRef.current.scrollToIndex({
+  //       index: 2,
+  //       align: 'start',
+  //     });
+  //   }
+  // }, [novelText]);
 
   return (
     <div className="mx-auto min-h-screen max-w-4xl text-slate-100">
@@ -247,7 +250,7 @@ export default function ReadingPage() {
             id="v-container"
             className="no-scrollbar"
             style={{ height: '100%' }}
-            totalCount={usedChaptersTexts.length + 1}
+            totalCount={novelText.slice(initialChapter).length + 1}
             itemContent={(index: number) =>
               index === 0 ? (
                 <Header
@@ -258,7 +261,9 @@ export default function ReadingPage() {
                 />
               ) : (
                 <div className="v-scroller border-b border-slate-500 py-4">
-                  <Reader rawText={usedChaptersTexts[index - 1]} />
+                  <Reader
+                    rawText={novelText.slice(initialChapter)[index - 1]}
+                  />
                 </div>
               )
             }
