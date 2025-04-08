@@ -42,7 +42,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Open sans', 'Roboto', sans-serif;
+  /* font-family: 'Open sans', 'Roboto', sans-serif; */
 }
 
 .font-lora {

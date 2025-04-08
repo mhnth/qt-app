@@ -43,7 +43,7 @@ export class QTManager {
           await fetch(`/api/dict/${fileName}`, {
             cache: 'no-store',
           }),
-          await fetch(`/api/dict/unused.txt`, {
+          await fetch(`/api/dict/unused`, {
             cache: 'no-cache',
           }),
         ]);

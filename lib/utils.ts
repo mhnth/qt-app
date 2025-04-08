@@ -342,12 +342,11 @@ export function swapAdjacentWords(arr: string[]): string[] {
   return arr;
 }
 
-export function swapAdjacentWords2(
+export function swapAdjacentWords3(
   result: string[],
   target: string,
   zhArr?: string[],
 ): string[] {
-  // const result = [...viArr]; // Sao chép mảng để không thay đổi gốc
   const toReverseWords = new Set([
     'mẫu thân',
     'tỷ',
@@ -362,28 +361,43 @@ export function swapAdjacentWords2(
   const swapToRightWords = new Set(['cho ta', 'nhất', 'kia']);
   const swapToLeftWords = new Set(['bên trong']);
 
-  for (let i = 0; i < result.length; i++) {
+  // Sao chép mảng để không thay đổi gốc
+  const processedResult = [...result];
+
+  // Vòng lặp 1: Xử lý swapToLeftWords và swapToRightWords trước
+  for (let i = 0; i < processedResult.length; i++) {
     // Xử lý swap sang trái
-    if (i > 0 && swapToLeftWords.has(result[i].split('/')[0])) {
-      [result[i], result[i - 1]] = [result[i - 1], result[i]];
-      i++;
+    if (i > 0 && swapToLeftWords.has(processedResult[i].split('/')[0])) {
+      [processedResult[i], processedResult[i - 1]] = [
+        processedResult[i - 1],
+        processedResult[i],
+      ];
+      i++; // Bỏ qua phần tử đã swap để tránh xử lý lại
       continue;
     }
 
     // Xử lý swap sang phải
     if (
-      i < result.length - 1 &&
-      swapToRightWords.has(result[i].split('/')[0])
+      i < processedResult.length - 1 &&
+      swapToRightWords.has(processedResult[i].split('/')[0])
     ) {
-      [result[i], result[i + 1]] = [result[i + 1], result[i]];
-      i++;
-      continue;
+      [processedResult[i], processedResult[i + 1]] = [
+        processedResult[i + 1],
+        processedResult[i],
+      ];
+      i++; // Bỏ qua phần tử đã swap để tránh xử lý lại
     }
+  }
 
-    // Xử lý target
-    if (result[i] === target && i > 0 && i < result.length - 1) {
-      const prev = result[i - 1].split('/')[0];
-      const next = result[i + 1].split('/')[0];
+  // Vòng lặp 2: Xử lý target sau khi đã swap các từ khác
+  for (let i = 0; i < processedResult.length; i++) {
+    if (
+      processedResult[i] === target &&
+      i > 0 &&
+      i < processedResult.length - 1
+    ) {
+      const prev = processedResult[i - 1].split('/')[0];
+      const next = processedResult[i + 1].split('/')[0];
       if (
         toReverseWords.has(prev) ||
         toReverseWords.has(next) ||
@@ -391,16 +405,296 @@ export function swapAdjacentWords2(
         /[A-Z]/.test(next)
       ) {
         console.log('jahh');
-        [result[i - 1], result[i + 1]] = [next, prev];
-        result[i] = 'của';
-        i++;
+        [processedResult[i - 1], processedResult[i + 1]] = [next, prev];
+        processedResult[i] = 'của';
+        i++; // Bỏ qua phần tử đã xử lý
       }
     }
+  }
+
+  return processedResult;
+}
+
+// export function convertToVietnamese(phrases: string[]): string[] {
+//   let result: string[] = [];
+//   let i = 0;
+
+//   while (i < phrases.length) {
+//     const [currentPhrase, currentPos] = phrases[i].split('|');
+//     const next = i + 1 < phrases.length ? phrases[i + 1].split('|') : ['', ''];
+//     const [nextPhrase, nextPos] = next;
+
+//     // Xử lý "的" (uj) - ưu tiên cao nhất vì liên quan đến cấu trúc sở hữu hoặc miêu tả
+//     if (currentPos === 'uj') {
+//       if (i > 0 && i < phrases.length - 1) {
+//         let prevPhrases: string[] = [];
+//         let nextPhrases: string[] = [];
+//         let j = i - 1;
+//         let k = i + 1;
+//         while (j >= 0) {
+//           const [prevPhrase, prevPos] = phrases[j].split('|');
+//           if (['v', 'd', 'uz', 'p', 'u'].includes(prevPos)) {
+//             break;
+//           }
+//           prevPhrases.unshift(prevPhrase);
+//           j--;
+//         }
+
+//         while (k < phrases.length - 1) {
+//           const [nextPhrase, nextPos] = phrases[k].split('|');
+//           if (['v', 'd', 'uz', 'p', 'u'].includes(nextPos)) {
+//             break;
+//           }
+//           nextPhrases.push(nextPhrase);
+//           k++;
+//         }
+
+//         // if (nounPhrase.length > 0) {
+//         //   result.splice(-nounPhrase.length, nounPhrase.length);
+//         // }
+
+//         // if (
+//         //   nounPhrase.length === 1 &&
+//         //   phrases[i - 1].split('|')[1] === 'a' &&
+//         //   (nextPos === 'n' || nextPos === 'nr')
+//         // ) {
+//         //   result.push(nextPhrase, nounPhrase[0]); // Danh từ + Tính từ
+//         //   i += 2;
+//         //   continue;
+//         // } else if (nextPos === 'n') {
+//         //   const compoundNoun = nounPhrase.join(' ');
+//         //   result.push(nextPhrase, 'của', compoundNoun); // Danh từ + "của" + Cụm danh từ
+//         //   i += 2;
+//         //   continue;
+//         // }
+
+//         result.splice(-prevPhrases.length);
+
+//         result.push(...nextPhrases, 'của', ...prevPhrases);
+
+//         i += k;
+//         continue;
+//       }
+//     }
+
+//     // Xử lý "般" (bān) - so sánh
+//     else if (currentPos === 'u' && currentPhrase === 'bàn') {
+//       if (i > 0 && i < phrases.length - 1) {
+//         let nounPhrase: string[] = [];
+//         let j = i - 1;
+//         while (j >= 0) {
+//           const [prevPhrase, prevPos] = phrases[j].split('/');
+//           if (['v', 'd', 'uz', 'p', 'u'].includes(prevPos)) {
+//             break;
+//           }
+//           nounPhrase.unshift(prevPhrase);
+//           j--;
+//         }
+//         if (nounPhrase.length > 0) {
+//           result.splice(-nounPhrase.length, nounPhrase.length);
+//           if (nextPos === 'a') {
+//             result.push(nextPhrase, 'như', nounPhrase.join(' ')); // Tính từ + "như" + Cụm danh từ
+//             i += 2;
+//             continue;
+//           }
+//         }
+//       }
+//     }
+
+//     // Xử lý "里" (lǐ) - bên trong
+//     else if (currentPos === 'f' && currentPhrase === 'lý') {
+//       if (i > 0) {
+//         const prevPhrase = result.pop() || '';
+//         result.push('bên trong', prevPhrase);
+//         i += 1;
+//         continue;
+//       }
+//     }
+
+//     // Xử lý "上" (shàng) - bên trên
+//     else if (currentPos === 'f' && currentPhrase === 'thượng') {
+//       if (i > 0) {
+//         const prevPhrase = result.pop() || '';
+//         result.push('bên trên', prevPhrase);
+//         i += 1;
+//         continue;
+//       }
+//     }
+
+//     // Mặc định: Thêm từ vào kết quả
+//     result.push(currentPhrase);
+//     i += 1;
+//   }
+
+//   return result;
+// }
+
+export function convertToVietnamese(phrases: string[]): string[] {
+  let result: string[] = [];
+  let i = 0;
+
+  while (i < phrases.length) {
+    const [currentPhrase, currentPos] = phrases[i].split('|');
+    const next = i + 1 < phrases.length ? phrases[i + 1].split('|') : ['', ''];
+    const [nextPhrase, nextPos] = next;
+
+    // Xử lý "的" (uj)
+    if (currentPos === 'uj' && currentPhrase === 'đích') {
+      if (i > 0 && i < phrases.length - 1) {
+        // Thu thập cụm trước "đích"
+        let prevPhrases: string[] = [];
+        let j = i - 1;
+        while (j >= 0) {
+          const [prevPhrase, prevPos] = phrases[j].split('|');
+          if (
+            ['v', 'd', 'uz', 'p', 'u'].includes(prevPos) ||
+            ['.', ',', '!', '?', ';', ':'].includes(prevPhrase)
+          ) {
+            break;
+          }
+          prevPhrases.unshift(prevPhrase);
+          j--;
+        }
+
+        // Thu thập cụm sau "đích", dừng lại khi gặp dấu câu
+        let nextPhrases: string[] = [];
+        let k = i + 1;
+        while (k < phrases.length) {
+          const [afterPhrase, afterPos] = phrases[k].split('|');
+          // Dừng nếu gặp từ loại không thuộc cụm danh từ hoặc dấu câu
+          if (
+            ['v', 'd', 'uz', 'p', 'u'].includes(afterPos) ||
+            ['.', ',', '!', '?', ';', ':'].includes(afterPhrase)
+          ) {
+            break;
+          }
+          nextPhrases.push(afterPhrase);
+          k++;
+        }
+
+        // Xóa các từ đã thêm trước đó khỏi result
+        if (prevPhrases.length > 0) {
+          result.splice(-prevPhrases.length, prevPhrases.length);
+        }
+
+        // Trường hợp 1: Tính từ + 的 + Danh từ -> Danh từ + Tính từ
+        if (
+          prevPhrases.length === 1 &&
+          phrases[i - 1].split('|')[1] === 'a' &&
+          (nextPos === 'n' || nextPos === 'nr') &&
+          nextPhrases.length === 1
+        ) {
+          result.push(nextPhrase, prevPhrases[0]);
+          i += 2;
+          continue;
+        }
+        // Trường hợp 2: Cụm phức tạp trước và sau "đích"
+        else if (nextPhrases.length > 0) {
+          // Tách lượng từ (m) nếu có ở đầu cụm trước "đích"
+          let quantifier: string | null = null;
+          if (
+            prevPhrases.length > 0 &&
+            phrases[i - prevPhrases.length].split('|')[1] === 'm'
+          ) {
+            quantifier = prevPhrases.shift()!; // Lấy lượng từ đầu tiên (ví dụ: "một cái")
+          }
+
+          // Thêm lượng từ (nếu có) trước cụm sau "đích"
+          if (quantifier) {
+            result.push(quantifier);
+          }
+          // Thêm cụm sau "đích" (danh từ chính)
+          result.push(...nextPhrases);
+
+          // Thêm "của" và cụm trước "đích" (nếu còn)
+          if (prevPhrases.length > 0) {
+            result.push('đíchh', ...prevPhrases);
+          }
+
+          i = k; // Bỏ qua toàn bộ cụm đã xử lý
+          continue;
+        }
+      }
+    }
+
+    // Xử lý "般" (bān) - so sánh
+    else if (currentPos === 'u' && currentPhrase === 'bàn') {
+      if (i > 0 && i < phrases.length - 1) {
+        let nounPhrase: string[] = [];
+        let j = i - 1;
+        while (j >= 0) {
+          const [prevPhrase, prevPos] = phrases[j].split('|');
+          if (['v', 'd', 'uz', 'p', 'u'].includes(prevPos)) {
+            break;
+          }
+          nounPhrase.unshift(prevPhrase);
+          j--;
+        }
+        if (nounPhrase.length > 0) {
+          result.splice(-nounPhrase.length, nounPhrase.length);
+          if (nextPos === 'a') {
+            result.push(nextPhrase, 'như', nounPhrase.join(' '));
+            i += 2;
+            continue;
+          }
+        }
+      }
+    }
+
+    // Xử lý "里" (lǐ) - bên trong
+    // else if (currentPos === 'f') {
+    //   if (i > 0) {
+    //     const prevPhrase = result.pop() || '';
+    //     result.push('bên trong', prevPhrase);
+    //     i += 1;
+    //     continue;
+    //   }
+    // }
+
+    // Xử lý "上" (shàng) - bên trên
+    // else if (currentPos === 'f' && currentPhrase === 'thượng') {
+    //   if (i > 0) {
+    //     const prevPhrase = result.pop() || '';
+    //     result.push('bên trên', prevPhrase);
+    //     i += 1;
+    //     continue;
+    //   }
+    // }
+
+    // Mặc định: Thêm từ vào kết quả
+    result.push(currentPhrase);
+    i += 1;
   }
 
   return result;
 }
 
+// // Test với ví dụ của bạn
+// const t = convertToVietnamese([
+//   'khi đó|r',
+//   'rất nhiều|m',
+//   'nông thôn|n',
+//   'người đều|n',
+//   'có|v',
+//   'trọng nam khinh nữ|n',
+//   'đích|uj',
+//   'quen thuộc|a',
+// ]);
+// console.log('test', t);
+
+// // Test với cụm danh từ sau "的"
+// const t2 = convertToVietnamese([
+//   'phía trên|f',
+//   'còn có|v',
+//   'một cái|m',
+//   'lớn|x',
+//   'ta|x',
+//   'mười tuổi|m',
+//   'đích|uj',
+//   'tỷ tỷ|n',
+//   '.',
+// ]);
+// console.log('test2', t2);
 export function splitIntoChunks(input: string, max: number = 1000): string[] {
   const chunks = [];
   let start = 0;

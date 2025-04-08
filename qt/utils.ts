@@ -40,9 +40,24 @@ export function getZhViPairs(
     }
 
     // Check Names first
+    // match = trieNames.findLongestSuffix(text.substring(i));
+    // if (match[0]) {
+    //   const nameParts = [];
+    //   for (const char of match[0]) {
+    //     const pinyin = chinesePhienAm[char] || ''; // Mặc định là chuỗi rỗng nếu không tìm thấy
+    //     if (pinyin) {
+    //       nameParts.push(pinyin.charAt(0).toUpperCase() + pinyin.slice(1));
+    //     }
+    //   }
+    //   const name = nameParts.join(' ');
+    //   tokens.push({ vi: name || '', zh: match[0] });
+    //   i += match[0].length;
+    //   continue;
+    // }
     match = trieNames.findLongestSuffix(text.substring(i));
     if (match[0]) {
       tokens.push({ vi: match[1] || '', zh: match[0] });
+
       i += match[0].length;
       continue;
     }

@@ -7,39 +7,48 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const [res_1, res_2, res_3, res_4, res_x] = await Promise.all([
-      await fetch(`${DICT_URL}/names.txt`),
-      await fetch(`${DICT_URL}/names_spec.txt`),
-      await fetch(`${DICT_URL}/vp_names.txt`),
-      await fetch(`${DICT_URL}/vp_names_spec.txt`),
-      await fetch(`${DICT_URL}/names_x.txt`),
-    ]);
+    // Danh sách các file cần fetch
+    const fileNames = [
+      'names_spec',
+      'names_x',
+      'names',
+      'names2',
+      'vp_names',
+      'vp_names_spec',
+    ];
 
-    if (!res_1.ok || !res_2.ok || !res_3.ok || !res_4.ok || !res_x.ok) {
-      throw new Error('Failed to fetch data from the third-party API');
+    // Tạo một mảng các promises để fetch dữ liệu từ các file
+    const fetchPromises = fileNames.map((fileName) =>
+      fetch(`${DICT_URL}/names/${fileName}.txt`),
+    );
+
+    // Chờ tất cả các promises hoàn thành
+    const responses = await Promise.all(fetchPromises);
+
+    // Kiểm tra xem tất cả các response có hợp lệ không
+    if (responses.some((res) => !res.ok)) {
+      throw new Error(
+        'Failed to fetch one or more files from the third-party API',
+      );
     }
 
-    const textData =
-      (await res_1.text()) +
-      '\n' +
-      (await res_2.text()) +
-      '\n' +
-      (await res_3.text()) +
-      '\n' +
-      (await res_4.text()) +
-      '\n' +
-      (await res_x.text());
+    // Đọc nội dung của từng file và kết hợp chúng lại
+    const textData = await Promise.all(responses.map((res) => res.text()));
 
-    return new Response(textData, {
+    // Nối tất cả dữ liệu lại với nhau bằng dấu "\n"
+    const combinedText = textData.join('\n');
+
+    // Trả về response với nội dung là dữ liệu kết hợp
+    return new Response(combinedText, {
       status: 200,
       headers: {
         'Content-Type': 'text/plain',
       },
     });
   } catch (error) {
-    console.log('ERR fetch data name:', error);
+    console.log('ERR fetch data vp:', error);
 
-    return new Response('Error fetching data from dict ', {
+    return new Response('Error fetching data from dict', {
       status: 500,
     });
   }
@@ -52,7 +61,7 @@ export async function POST(req: NextRequest) {
 
   // const fileName = user?.role === 'admin' ? filename : 'UserDict';
 
-  const fileName = 'names_x.txt';
+  const fileName = '/names/names_x.txt';
 
   try {
     await updateFileOnGitHub(fileName, `${contents}\n`);

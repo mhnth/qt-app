@@ -28,7 +28,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`min-h-screen bg-slate-200 bg-[url(/assets/images/mountain.avif)] bg-cover bg-center bg-no-repeat bg-blend-multiply`}
+        className={`min-h-screen bg-slate-200 bg-[url(/assets/images/mountain.avif)] bg-cover bg-center
+                  bg-no-repeat font-sans bg-blend-multiply`}
       >
         <QTProvider>
           <main className="no-scrollbar h-screen overflow-y-scroll">

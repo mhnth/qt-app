@@ -8,10 +8,10 @@ import React, {
 } from 'react';
 import {
   capitalizeFirstLetter,
+  convertToVietnamese,
   cx,
   splitArray,
   swapAdjacentWords,
-  swapAdjacentWords2,
 } from '@/lib/utils';
 
 import { EditQTModal } from './editQT-modal';
@@ -176,12 +176,13 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
   return (
     <>
-      <article ref={ref} {...props} className="font-lora mx-auto h-max">
+      <article ref={ref} {...props} className="mx-auto h-max">
         <div className="mx-auto text-justify leading-10">
           {viParagraphs.map((p, parIndex) => {
             if (!p[0] || p.length < 1) return;
 
             // p = swapAdjacentWords2(p, 'đích');
+            // p = convertToVietnamese(p as any);
 
             return (
               <div key={parIndex} className="lol contents">
@@ -191,7 +192,15 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                       currentParPosition === parIndex &&
                       selectedWordsPosition.includes(wrdIndex);
 
-                    const word = wordRaw.split('/')[0];
+                    const word = wordRaw.split('|')[0].split('/')[0];
+
+                    if (word === 'đích')
+                      return (
+                        <span key={wrdIndex} className="invisible">
+                          {/* &ZeroWidthSpace; */}
+                        </span>
+                      );
+                    if (word === 'liễu') return <span key={wrdIndex}></span>;
 
                     if (wrdIndex === 0) {
                       return (
