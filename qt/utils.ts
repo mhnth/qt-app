@@ -1,6 +1,6 @@
-import { ReverseTrie } from './trie';
+import { ReverseTrie, Trie } from './trie';
 
-export function getZhViPairs(
+export function getZhViPairs1(
   text: string,
   trieNames: ReverseTrie,
   trieVietPhrase: ReverseTrie,
@@ -92,6 +92,79 @@ export function getZhViPairs(
   return tokens.reverse();
 }
 
+export function getZhViPairs(
+  text: string,
+  trieNames: Trie,
+  trieVietPhrase: Trie,
+  chinesePhienAm: { [key: string]: string },
+  personDict?: Trie,
+): { zh: string; vi: string }[] {
+  text = replaceSpecialChars(text);
+
+  const tokens: { zh: string; vi: string }[] = [];
+  let i = 0;
+
+  while (i < text.length) {
+    let match: [string, string | undefined];
+
+    let nonChineseWord = '';
+
+    // Detect non-Chinese sequences
+    while (i < text.length && isAlphaNumeric(text[i])) {
+      nonChineseWord += text[i];
+      i++;
+    }
+
+    // If a non-Chinese sequence is found, add it to tokens
+    if (nonChineseWord) {
+      tokens.push({ vi: nonChineseWord, zh: nonChineseWord });
+      continue;
+    }
+
+    if (personDict) {
+      // Check personal dictionary first
+      match = personDict.findLongestPrefix(text.substring(i));
+      if (match[0]) {
+        tokens.push({ vi: match[1] || '', zh: match[0] });
+        i += match[0].length;
+        continue;
+      }
+    }
+
+    // Check Names first
+    match = trieNames.findLongestPrefix(text.substring(i));
+    if (match[0]) {
+      tokens.push({ vi: match[1] || '', zh: match[0] });
+      i += match[0].length;
+      continue;
+    }
+
+    // Check VietPhrase
+    match = trieVietPhrase.findLongestPrefix(text.substring(i));
+    if (match[0]) {
+      tokens.push({ vi: match[1] || '', zh: match[0] });
+      i += match[0].length;
+    } else {
+      // Fallback to ChinesePhienAmWord
+      const char = text[i];
+      if (
+        // char !== '的' &&
+        // char !== '了' &&
+        // char !== '著' &&
+        // char !== '地' &&
+        // char !== '地'
+        1
+      ) {
+        const fallbackValue = chinesePhienAm[char] || char;
+        tokens.push({ vi: fallbackValue, zh: char });
+      }
+      i += 1;
+    }
+  }
+
+  return tokens;
+}
+
 function isAlphaNumeric(char: string): boolean {
   const regex = /^[a-zA-Z0-9]$/;
   return regex.test(char);
@@ -140,7 +213,7 @@ export function replaceSpecialChars(text: string): string {
   );
 }
 
-export function translateZhToVi(
+export function translateZhToVi1(
   text: string,
   trieNames: ReverseTrie,
   trieVietPhrase: ReverseTrie,
@@ -199,4 +272,65 @@ export function translateZhToVi(
   }
 
   return tokens.reverse().join(' ');
+}
+
+export function translateZhToVi(
+  text: string,
+  trieNames: Trie,
+  trieVietPhrase: Trie,
+  chinesePhienAm: { [key: string]: string },
+  hv: boolean = false,
+): string {
+  text = replaceSpecialChars(text);
+  const tokens: string[] = [];
+  let i = 0;
+
+  while (i < text.length) {
+    let match: [string, string | undefined];
+
+    let nonChineseWord = '';
+
+    // Detect non-Chinese sequences
+    while (i < text.length && (isAlphaNumeric(text[i]) || text[i] == '/')) {
+      nonChineseWord += text[i];
+      i++;
+    }
+
+    // If a non-Chinese sequence is found, add it to tokens
+    if (nonChineseWord) {
+      tokens.push(nonChineseWord);
+      continue;
+    }
+
+    if (hv) {
+      const value = chinesePhienAm[text[i]] || text[i];
+      tokens.push(value);
+
+      i++;
+      continue;
+    }
+
+    match = trieNames.findLongestPrefix(text.substring(i));
+    if (match[0]) {
+      tokens.push(match[1]?.split('/')[0] || '');
+      i += match[0].length;
+      continue;
+    }
+
+    match = trieVietPhrase.findLongestPrefix(text.substring(i));
+    if (match[0]) {
+      tokens.push(match[1]?.split('/')[0] || '');
+      i += match[0].length;
+    } else {
+      // Fallback to ChinesePhienAmWord
+      const char = text[i];
+      if (char !== '的' && char !== '了' && char !== '著' && char !== '地') {
+        const fallbackValue = chinesePhienAm[char] || char;
+        tokens.push(fallbackValue);
+      }
+      i += 1;
+    }
+  }
+
+  return tokens.join(' ');
 }
