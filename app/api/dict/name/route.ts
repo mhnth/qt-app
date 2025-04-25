@@ -8,18 +8,11 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET() {
   try {
     // Danh sách các file cần fetch
-    const fileNames = [
-      'names_spec',
-      'names_x',
-      'names',
-      'names2',
-      'vp_names',
-      'vp_names_spec',
-    ];
+    const fileNames = ['names_spec', 'names_x', 'names_std'];
 
     // Tạo một mảng các promises để fetch dữ liệu từ các file
     const fetchPromises = fileNames.map((fileName) =>
-      fetch(`${DICT_URL}/names/${fileName}.txt`),
+      fetch(`${DICT_URL}/origin/${fileName}.txt`),
     );
 
     // Chờ tất cả các promises hoàn thành
@@ -61,7 +54,7 @@ export async function POST(req: NextRequest) {
 
   // const fileName = user?.role === 'admin' ? filename : 'UserDict';
 
-  const fileName = '/names/names_x.txt';
+  const fileName = '/origin/names_x.txt';
 
   try {
     await updateFileOnGitHub(fileName, `${contents}\n`);

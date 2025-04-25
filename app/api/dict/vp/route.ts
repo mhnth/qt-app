@@ -8,62 +8,11 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET() {
   try {
     // Danh sách các file cần fetch
-    const fileNames = [
-      'a',
-      'ad',
-      'ag',
-      'an',
-      'b',
-      'c',
-      'd',
-      'df',
-      'e',
-      'f',
-      'g',
-      'h',
-      'i',
-      'j',
-      'k',
-      'l',
-      'm',
-      'mg',
-      'mq',
-      'n',
-      'ng',
-      'nrfg',
-      'ns',
-      'ns',
-      'nt',
-      'nz',
-      'o',
-      'p',
-      'q',
-      'r',
-      'rr',
-      'rz',
-      's',
-      't',
-      'u',
-      'uj',
-      'v',
-      'vd',
-      'vg',
-      'vi',
-      'vn',
-      'vq',
-      'x',
-      'y',
-      'yg',
-      'z',
-      'zg',
-      'tudon_pos',
-      // 'vp_x',
-      // 'simple_word',
-    ];
+    const fileNames = ['N', 'N2', 'VP', 'diff_NVP', 'vp_x', 'tudon'];
 
     // Tạo một mảng các promises để fetch dữ liệu từ các file
     const fetchPromises = fileNames.map((fileName) =>
-      fetch(`${DICT_URL}/vp/${fileName}.txt`),
+      fetch(`${DICT_URL}/origin/${fileName}.txt`),
     );
 
     // Chờ tất cả các promises hoàn thành
@@ -139,7 +88,7 @@ export async function POST(req: NextRequest) {
 
   // const fileName = user?.role === 'admin' ? filename : 'UserDict';
 
-  const fileName = 'vp/vp_x.txt';
+  const fileName = 'origin/vp_x.txt';
 
   try {
     await updateFileOnGitHub(fileName, `${contents}\n`);
