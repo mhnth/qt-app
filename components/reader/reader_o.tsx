@@ -133,6 +133,18 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
     let modalTop = spanRect.bottom - virtuosoRect.top + virtuosoScrollTop + 10;
     let modalLeft = spanRect.left - virtuosoRect.left;
 
+    // console.log(
+    //   'spanRect:',
+    //   spanRect.top,
+    //   spanRect.left,
+    //   'modal:',
+    //   modalTop,
+    //   modalLeft,
+    //   'virtuoso:',
+    //   virtuosoRect.top,
+    //   virtuosoScrollTop
+    // );
+
     // 🛑 Giữ modal trong màn hình
     const modalWidth = 300;
     const containerWidth = virtuosoRect.width;
@@ -167,21 +179,19 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
     <>
       <article ref={ref} {...props} className="mx-auto h-max">
         <div className="mx-auto text-justify leading-10">
-          {viParagraphs.map((viParagraph, parIndex) => {
-            if (!viParagraph[0] || viParagraph.length < 1) return;
+          {viParagraphs.map((p, parIndex) => {
+            if (!p[0] || p.length < 1) return;
 
-            const { zh, vi } = processZh2ViGrammar(
-              zhParagraphs[parIndex],
-              viParagraph,
-            );
+            // p = swapAdjacentWords2(p, 'đích');
+            // p = convertToVietnamese(p as any);
+            // console.log('zh', zhParagraphs[parIndex], 'vi', p);
 
-            console.log('zh', zh);
-            console.log('vi', vi);
+            p = processZh2ViGrammar(zhParagraphs[parIndex], p as any).vi;
 
             return (
               <div key={parIndex} className="lol contents">
                 <p key={parIndex}>
-                  {vi.map((wordRaw, wrdIndex) => {
+                  {p.map((wordRaw, wrdIndex) => {
                     const isHighlight =
                       currentParPosition === parIndex &&
                       selectedWordsPosition.includes(wrdIndex);
@@ -200,8 +210,8 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                     if (wrdIndex === 0) {
                       return (
                         <span
-                          data-word-zh={zh[wrdIndex]}
-                          data-word-vi={vi[wrdIndex]}
+                          data-word-zh={zhParagraphs[parIndex][wrdIndex]}
+                          data-word-vi={viParagraphs[parIndex][wrdIndex]}
                           onClick={(e) => selectWord(parIndex, wrdIndex, e)}
                           className={cx(
                             isHighlight && 'bg-orange-500 text-black',
@@ -213,11 +223,11 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                       );
                     }
                     if (/^[,”.:;?!]+$/.test(word)) return word;
-                    if (/^[.?]+$/.test(vi[wrdIndex - 1])) {
+                    if (/^[.?]+$/.test(p[wrdIndex - 1])) {
                       return (
                         <span
-                          data-word-zh={zh[wrdIndex]}
-                          data-word-vi={vi[wrdIndex]}
+                          data-word-zh={zhParagraphs[parIndex][wrdIndex]}
+                          data-word-vi={viParagraphs[parIndex][wrdIndex]}
                           onClick={(e) => {
                             selectWord(parIndex, wrdIndex, e);
                           }}
@@ -231,11 +241,11 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
                         </span>
                       );
                     }
-                    if (vi[wrdIndex - 1] === '“')
+                    if (p[wrdIndex - 1] === '“')
                       return (
                         <span
-                          data-word-zh={zh[wrdIndex]}
-                          data-word-vi={vi[wrdIndex]}
+                          data-word-zh={zhParagraphs[parIndex][wrdIndex]}
+                          data-word-vi={viParagraphs[parIndex][wrdIndex]}
                           onClick={(e) => {
                             selectWord(parIndex, wrdIndex, e);
                           }}
@@ -250,8 +260,8 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
 
                     return (
                       <span
-                        data-word-zh={zh[wrdIndex]}
-                        data-word-vi={vi[wrdIndex]}
+                        data-word-zh={zhParagraphs[parIndex][wrdIndex]}
+                        data-word-vi={viParagraphs[parIndex][wrdIndex]}
                         onClick={(e) => {
                           selectWord(parIndex, wrdIndex, e);
                         }}

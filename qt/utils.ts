@@ -134,7 +134,7 @@ export function getZhViPairs(
     // Check Names first
     match = trieNames.findLongestPrefix(text.substring(i));
     if (match[0]) {
-      tokens.push({ vi: match[1] || '', zh: match[0] });
+      tokens.push({ vi: match[1] + '|nr' || '', zh: match[0] });
       i += match[0].length;
       continue;
     }

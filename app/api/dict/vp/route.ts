@@ -9,7 +9,7 @@ export async function GET() {
   try {
     // Danh sách các file cần fetch
     // const fileNames = ['N', 'N2', 'VP', 'diff_NVP', 'vp_x', 'tudon'];
-    const fileNames = ['jieba_dict', 'tudon', 'nsfw', 'vp_x'];
+    const fileNames = ['jieba_dict', 'tudon_pos', 'vp_x', 'tudon'];
 
     // Tạo một mảng các promises để fetch dữ liệu từ các file
     const fetchPromises = fileNames.map((fileName) =>
