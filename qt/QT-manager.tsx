@@ -15,10 +15,10 @@ const UNUSED_PERSON_DICT = 'unused_person_dict';
 
 export class QTManager {
   public loading: boolean = false;
-  private trieNames: Trie | undefined;
-  private trieVietPhrase: Trie | undefined;
+  private trieNames: ReverseTrie | undefined;
+  private trieVietPhrase: ReverseTrie | undefined;
   private chinesePhienAm: any;
-  private personalDict: Trie | undefined;
+  private personalDict: ReverseTrie | undefined;
 
   constructor(
     private saveData: (
@@ -30,7 +30,7 @@ export class QTManager {
     this.chinesePhienAm = hanviet; // Default value
   }
 
-  async loadFile(fileName: 'name' | 'vp', trie: Trie) {
+  async loadFile(fileName: 'name' | 'vp', trie: ReverseTrie) {
     let entries: [string, string][] = (await this.loadData(fileName)) || [];
     let unusedWords: string[] = [];
 
@@ -120,7 +120,7 @@ export class QTManager {
 
     setItemLocalStorage(PERSON_DICT_KEY, updatedDictData);
 
-    const newPersonDictionary = new Trie();
+    const newPersonDictionary = new ReverseTrie();
     newPersonDictionary.batchInsert(updatedDictData);
     this.personalDict = newPersonDictionary;
   }
@@ -128,7 +128,7 @@ export class QTManager {
   updatePersonalDictionary(newDict: [string, string][]) {
     setItemLocalStorage(PERSON_DICT_KEY, newDict);
 
-    const newPersonDictionary = new Trie();
+    const newPersonDictionary = new ReverseTrie();
     newPersonDictionary.batchInsert(newDict);
     this.personalDict = newPersonDictionary;
   }
@@ -146,13 +146,16 @@ export class QTManager {
     const personDictData = getItemLocalStorage(PERSON_DICT_KEY);
     const unusedPersonDictData = getItemLocalStorage(UNUSED_PERSON_DICT);
 
-    const personDict = new Trie();
+    const personDict = new ReverseTrie();
     if (personDictData) {
       personDict.batchInsert(personDictData);
       this.personalDict = personDict;
     }
 
-    [this.trieNames, this.trieVietPhrase] = [new Trie(), new Trie()];
+    [this.trieNames, this.trieVietPhrase] = [
+      new ReverseTrie(),
+      new ReverseTrie(),
+    ];
 
     await Promise.all([
       this.loadFile('name', this.trieNames),
@@ -168,15 +171,16 @@ export class QTManager {
     this.loading = true;
     await clearDB();
 
-    this.trieNames = new Trie();
-    this.trieVietPhrase = new Trie();
-    this.personalDict = new Trie();
+    this.trieNames = new ReverseTrie();
+    this.trieVietPhrase = new ReverseTrie();
+    this.personalDict = new ReverseTrie();
 
     await this.loadDictionary();
     this.loading = false;
   }
 
   deleteWord(word: string) {
+    word = [...word].reverse().join('');
     this.trieVietPhrase?.delete(word);
 
     let unusedPersonDict = getItemLocalStorage(UNUSED_PERSON_DICT) || [];
@@ -198,7 +202,7 @@ export class QTManager {
 
       setItemLocalStorage(PERSON_DICT_KEY, updatedDictData);
 
-      const newPersonDictionary = new Trie();
+      const newPersonDictionary = new ReverseTrie();
       newPersonDictionary.batchInsert(updatedDictData);
       this.personalDict = newPersonDictionary;
     }

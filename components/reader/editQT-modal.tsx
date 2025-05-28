@@ -65,6 +65,8 @@ export const EditQTModal: React.FC<EditQTModalProps> = ({
   const toggleWord = (w: string) => {
     if (!deletedWord) {
       setDeletedWord(chineseWord);
+      console.log('del3', deletedWord, w);
+
       deleteWordLocal(w);
     } else {
       addToPersonalDictionary({ zh: chineseWord, vi: vietnameseWord });

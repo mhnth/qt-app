@@ -94,12 +94,12 @@ export function getZhViPairs1(
 
 export function getZhViPairs(
   text: string,
-  trieNames: Trie,
-  trieVietPhrase: Trie,
+  trieNames: ReverseTrie,
+  trieVietPhrase: ReverseTrie,
   chinesePhienAm: { [key: string]: string },
-  personDict?: Trie,
+  personDict: ReverseTrie | undefined,
 ): { zh: string; vi: string }[] {
-  text = replaceSpecialChars(text);
+  text = [...replaceSpecialChars(text)].reverse().join('');
 
   const tokens: { zh: string; vi: string }[] = [];
   let i = 0;
@@ -123,7 +123,7 @@ export function getZhViPairs(
 
     if (personDict) {
       // Check personal dictionary first
-      match = personDict.findLongestPrefix(text.substring(i));
+      match = personDict.findLongestSuffix(text.substring(i));
       if (match[0]) {
         tokens.push({ vi: match[1] || '', zh: match[0] });
         i += match[0].length;
@@ -132,7 +132,7 @@ export function getZhViPairs(
     }
 
     // Check Names first
-    match = trieNames.findLongestPrefix(text.substring(i));
+    match = trieNames.findLongestSuffix(text.substring(i));
     if (match[0]) {
       tokens.push({ vi: match[1] + '|nr' || '', zh: match[0] });
       i += match[0].length;
@@ -140,7 +140,7 @@ export function getZhViPairs(
     }
 
     // Check VietPhrase
-    match = trieVietPhrase.findLongestPrefix(text.substring(i));
+    match = trieVietPhrase.findLongestSuffix(text.substring(i));
     if (match[0]) {
       tokens.push({ vi: match[1] || '', zh: match[0] });
       i += match[0].length;
@@ -162,7 +162,7 @@ export function getZhViPairs(
     }
   }
 
-  return tokens;
+  return tokens.reverse();
 }
 
 function isAlphaNumeric(char: string): boolean {

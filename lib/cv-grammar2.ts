@@ -17,8 +17,12 @@ export function processZh2ViGrammar(
       let phrase = [];
       let rawPhrase = [currentRawWord];
 
-      const [nextWord, nextPos] = viTokensWithPos[i].split('|');
-      ['n', 'nr', 'ns', 'nt', 'v'].includes(nextPos);
+      const [nextWord, nextPos] = viTokensWithPos[i + 1].split('|');
+      if (!['n', 'nr', 'ns', 'nt'].includes(nextPos)) {
+        newViTokens.push('');
+        i++;
+        continue;
+      }
 
       const mainNoun = viTokensWithPos[i + 1].split('|')[0]; // Danh từ chính
       rawPhrase.push(zhTokens[i + 1]);
@@ -40,13 +44,11 @@ export function processZh2ViGrammar(
         // Nếu là đại từ nhân xưng ở đầu cụm, có thể là chủ sở hữu
         if (prevPos === 'r' && j === 0) {
           qualifierWords.unshift(prevWord);
-          rawPhrase.unshift(zhTokens[j]);
           break;
         }
         // Nếu là tính từ, trạng từ, động từ (bổ nghĩa), danh từ (bổ nghĩa)
         if (['a', 'd', 'v', 'n', 'm', 'q'].includes(prevPos)) {
           qualifierWords.unshift(prevWord);
-          rawPhrase.unshift(zhTokens[j]);
           j--;
         } else if (prevPos === 'p' || prevPos === 'c' || prevPos === 'x') {
           // Giới từ, liên từ, dấu câu

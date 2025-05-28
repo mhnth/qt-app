@@ -67,6 +67,8 @@ export class Trie {
       word: string,
       index: number,
     ): boolean => {
+      console.log('del', word);
+
       if (index === word.length) {
         // If we're at the end of the word, mark it as not an end of a word
         if (!node.isEndOfWord) {

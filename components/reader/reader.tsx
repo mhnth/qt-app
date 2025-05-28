@@ -175,8 +175,7 @@ export const Reader: React.FC<ReaderProps> = ({ rawText, ref, ...props }) => {
               viParagraph,
             );
 
-            console.log('zh', zh);
-            console.log('vi', vi);
+            // const { zh, vi } = { zh: zhParagraphs[parIndex], vi: viParagraph };
 
             return (
               <div key={parIndex} className="lol contents">
