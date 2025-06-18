@@ -17,7 +17,7 @@ import {
 import { EditQTModal } from './editQT-modal';
 import { useQT } from '@/qt/QTContext';
 import { Spinner } from '../spinner';
-import { processZh2ViGrammar } from '@/lib/cv-grammar2';
+import { processZh2ViGrammar } from '@/lib/cv-grammar3';
 
 interface ReaderProps extends HTMLAttributes<HTMLDivElement> {
   rawText: string;
