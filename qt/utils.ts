@@ -213,7 +213,7 @@ export function replaceSpecialChars(text: string): string {
   );
 }
 
-export function translateZhToVi1(
+export function translateZhToVi(
   text: string,
   trieNames: ReverseTrie,
   trieVietPhrase: ReverseTrie,
@@ -251,14 +251,14 @@ export function translateZhToVi1(
 
     match = trieNames.findLongestSuffix(text.substring(i));
     if (match[0]) {
-      tokens.push(match[1]?.split('/')[0] || '');
+      tokens.push(match[1]?.split('/')[0].split('|')[0] || '');
       i += match[0].length;
       continue;
     }
 
     match = trieVietPhrase.findLongestSuffix(text.substring(i));
     if (match[0]) {
-      tokens.push(match[1]?.split('/')[0] || '');
+      tokens.push(match[1]?.split('/')[0].split('|')[0] || '');
       i += match[0].length;
     } else {
       // Fallback to ChinesePhienAmWord
@@ -274,7 +274,7 @@ export function translateZhToVi1(
   return tokens.reverse().join(' ');
 }
 
-export function translateZhToVi(
+export function translateZhToVi2(
   text: string,
   trieNames: Trie,
   trieVietPhrase: Trie,
